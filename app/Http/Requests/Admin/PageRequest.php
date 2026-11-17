@@ -17,6 +17,16 @@ class PageRequest extends AdminRequest
             'key' => ['required', 'string', 'max:50', 'regex:/^[a-z0-9_]+$/', 'unique:pages,key,'.$this->routeId()],
             'cover_media_id' => $this->mediaRule(),
             'status' => $this->statusRule(),
+            // Repeatable items (values, management cards, "why choose us" points).
+            'sections' => ['sometimes', 'array', 'max:30'],
+            'sections.*.key' => ['required', 'string', 'max:50', 'regex:/^[a-z0-9_-]+$/', 'distinct'],
+            'sections.*.icon' => ['nullable', 'string', 'max:50', 'regex:/^[a-z0-9-]+$/'],
+            'sections.*.media_id' => ['nullable', 'integer', 'exists:media,id'],
+            'sections.*.is_active' => ['sometimes', 'boolean'],
+            'sections.*.translations' => ['required', 'array', 'min:1'],
+            'sections.*.translations.*.title' => ['nullable', 'string', 'max:190'],
+            'sections.*.translations.*.body' => ['nullable', 'string', 'max:5000'],
+            'sections.*.translations.*.is_reviewed' => ['sometimes', 'boolean'],
             ...TranslationRules::make([
                 'title' => ['required', 'string', 'max:190'],
                 'summary' => ['nullable', 'string', 'max:1000'],

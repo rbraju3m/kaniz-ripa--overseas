@@ -109,3 +109,10 @@ Publishing safeguards enforced server-side:
 - Verifying a company or showing it as a partner requires `companies.publish`.
 - Success stories cannot be published without `consent_confirmed` + `consent_note`.
 - The company profile cannot be published until the active source has a current version.
+
+## Admin CMS (`resources/js/admin`)
+
+- Sanctum SPA login (`/sanctum/csrf-cookie` then `POST /api/v1/admin/login`). `useMe()` guards every screen and `useCan()` hides actions the user lacks permission for. The API still enforces every permission.
+- Config-driven CRUD for pages (with repeatable sections), services, portfolio, companies, success stories, gallery items/categories and countries (`admin/resources/configs.tsx`).
+- Forms use React Hook Form with BN/EN tabs and a per-language "reviewed" switch. Server 422 errors map onto fields, and the language tab with an error is opened automatically.
+- Dedicated screens: dashboard (live counts and the missing-info checklist), media library (alt text, delete), company profile PDF (upload, queued generation, preview, versions, publish), contact messages, navigation editor, SEO per page/locale, settings, users, roles (permission matrix), activity log.

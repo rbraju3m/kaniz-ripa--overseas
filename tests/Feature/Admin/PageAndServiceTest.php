@@ -63,3 +63,25 @@ it('reports real dashboard counts', function () {
         ->assertJsonPath('data.stats.partners_total', 1)
         ->assertJsonPath('data.stats.partners_displayed', 0);
 });
+
+it('manages page sections and exposes only reviewed, active ones', function () {
+    $payload = [
+        'key' => 'why_choose_us', 'status' => 'published',
+        'translations' => ['en' => ['title' => 'Why choose us', 'slug' => 'why-choose-us', 'is_reviewed' => true]],
+        'sections' => [
+            ['key' => 'licensed', 'icon' => 'shield', 'translations' => ['en' => ['title' => 'Licensed', 'body' => '<p>ok</p><script>x</script>', 'is_reviewed' => true]]],
+            ['key' => 'draft-point', 'translations' => ['en' => ['title' => 'Unreviewed', 'is_reviewed' => false]]],
+            ['key' => 'hidden', 'is_active' => false, 'translations' => ['en' => ['title' => 'Hidden', 'is_reviewed' => true]]],
+        ],
+    ];
+    $id = $this->postJson('/api/v1/admin/pages', $payload)->assertCreated()->assertJsonCount(3, 'data.sections')->json('data.id');
+
+    $res = $this->getJson('/api/v1/pages/why_choose_us?locale=en')->assertOk()->assertJsonCount(1, 'data.sections');
+    expect($res->json('data.sections.0.body'))->not->toContain('<script');
+
+    // Removing a section from the payload deletes it; order follows the payload.
+    $payload['sections'] = [$payload['sections'][2], $payload['sections'][0]];
+    $this->putJson("/api/v1/admin/pages/{$id}", $payload)->assertOk()
+        ->assertJsonCount(2, 'data.sections')
+        ->assertJsonPath('data.sections.0.key', 'hidden');
+});

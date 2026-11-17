@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Media;
 use App\Models\Setting;
 use App\Services\SettingsService;
 use Illuminate\Http\JsonResponse;
@@ -14,7 +15,13 @@ class SettingsController extends Controller
     public function index(): JsonResponse
     {
         return response()->json(['data' => Setting::query()->orderBy('group')->orderBy('id')->get()
-            ->map(fn (Setting $s) => [...$s->only(['id', 'group', 'key', 'is_translatable', 'is_public', 'is_placeholder', 'note']), 'value' => $s->value['v'] ?? null])
+            ->map(fn (Setting $s) => [
+                ...$s->only(['id', 'group', 'key', 'is_translatable', 'is_public', 'is_placeholder', 'note']),
+                'value' => $s->value['v'] ?? null,
+                // Thumbnail for media settings (logo, default share image).
+                'preview_url' => str_ends_with($s->key, '_media_id') && ($s->value['v'] ?? null)
+                    ? Media::query()->find($s->value['v'])?->url('sm') : null,
+            ])
             ->groupBy('group')]);
     }
 

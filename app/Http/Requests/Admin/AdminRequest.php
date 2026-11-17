@@ -39,6 +39,18 @@ abstract class AdminRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $sections = $this->input('sections');
+        if (is_array($sections)) {
+            foreach ($sections as $i => $section) {
+                foreach ((array) ($section['translations'] ?? []) as $locale => $fields) {
+                    if (is_array($fields) && isset($fields['body']) && is_string($fields['body'])) {
+                        $sections[$i]['translations'][$locale]['body'] = clean($fields['body']);
+                    }
+                }
+            }
+            $this->merge(['sections' => $sections]);
+        }
+
         $translations = $this->input('translations');
         if (! is_array($translations)) {
             return;

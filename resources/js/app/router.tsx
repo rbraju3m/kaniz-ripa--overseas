@@ -38,8 +38,12 @@ export const publicRoutes = [
     { path: '*', element: <NotFoundPage /> },
 ];
 
+// Literal locale prefixes (not a `:locale` param): a param route like `/:locale/company-profile`
+// would outrank `/admin/*` and swallow admin URLs that share a name with public pages.
 export const router = createBrowserRouter([
     { path: '/', element: <Navigate to={`/${initialLocale}`} replace /> },
     { path: '/admin/*', element: <AdminApp /> },
-    { path: '/:locale', element: <PublicLayout />, children: publicRoutes },
+    { path: '/bn', element: <PublicLayout locale="bn" />, children: publicRoutes },
+    { path: '/en', element: <PublicLayout locale="en" />, children: publicRoutes },
+    { path: '*', element: <Navigate to={`/${initialLocale}`} replace /> },
 ]);

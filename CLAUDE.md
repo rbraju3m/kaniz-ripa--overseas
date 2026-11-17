@@ -15,11 +15,15 @@ Read `docs/ARCHITECTURE.md` and `docs/DATABASE.md` before structural changes.
 
 Frontend conventions (`resources/js`): pages in `pages/` (lazy-loaded in `app/router.tsx`), data hooks in `hooks/queries.ts` (always keyed by locale), UI strings in `locales/{en,bn}.ts` (keys must match; enforced by a test), design tokens in `resources/css/app.css` (`@theme`). Never letter-space or uppercase Bangla text. Sections with no published data must render nothing, not placeholder content.
 
+Admin CMS (`resources/js/admin`, served at `/admin`): standard content modules are config-driven. Add or change fields in `admin/resources/configs.tsx` (`ResourceConfig`); `ResourceList`/`ResourceForm` and `lib/formModel.ts` handle loading, payloads, 422 errors, translations and publish rules. Special screens (media, company profile, messages, menus, SEO, settings, users, roles, activity) live in `admin/pages/`. UI permission checks (`useCan`) mirror the API's `module.action` permissions, but the API is the authority.
+
+Routing gotcha: public routes are declared under literal `/bn` and `/en` (not `/:locale`), otherwise `/:locale/<page>` outranks `/admin/*`.
+
 ## Commands
 
 - PHP: `composer install && php artisan migrate:fresh --seed && php artisan test`
 - JS (Node 22+, installed via nvm: `. ~/.nvm/nvm.sh` in non-interactive shells): `npm install && npm run dev | build | test | typecheck | lint`
-- Local dev: `composer run dev` (serve + queue + vite)
+- Local dev: `composer run dev` (serve + queue + vite). PDF generation is queued, so a queue worker must run.
 
 ## Content rules (non-negotiable)
 
