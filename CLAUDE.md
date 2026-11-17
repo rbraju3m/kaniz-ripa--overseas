@@ -1,0 +1,28 @@
+# CLAUDE.md
+
+Bilingual (Bangla/English) corporate portfolio website + CMS for KANIZ RIPA OVERSEAS, a Bangladeshi overseas recruitment agency. It is a portfolio site only. Never add applicant registration, job applications, CV handling, ATS or HR features.
+
+## Layout
+
+Single Laravel 13 project (do **not** split into separate backend/frontend projects).
+
+- Laravel at the repo root: REST API under `/api/v1`, Sanctum SPA cookie auth, MySQL 8, Pest tests.
+- `resources/js/`: React + TypeScript SPA (public site + `/admin`), built by Laravel's Vite plugin to `public/build/`.
+- `resources/views/app.blade.php`: SPA shell, with SEO meta injected server-side by `SpaController`.
+- `docs/`: ARCHITECTURE.md, DATABASE.md, UI-UX.md, MISSING-INFO.md, DEPLOYMENT.md, brand-assets/.
+
+Read `docs/ARCHITECTURE.md` and `docs/DATABASE.md` before structural changes.
+
+## Commands
+
+- PHP: `composer install && php artisan migrate:fresh --seed && php artisan test`
+- JS (requires Node 22): `npm install && npm run dev | build | test | typecheck | lint`
+- Local dev: `composer run dev` (serve + queue + vite)
+
+## Content rules (non-negotiable)
+
+- Never invent company details, credentials, statistics, partners or testimonials. Use `[PLACEHOLDER]` and track the item in `docs/MISSING-INFO.md`.
+- Companies are shown as partners only when `verification_status = verified`.
+- A translation is public only when `is_reviewed = true`.
+- Success stories need `consent_confirmed_at` before publishing.
+- Unpublished files live on the private disk and are streamed via controllers.
