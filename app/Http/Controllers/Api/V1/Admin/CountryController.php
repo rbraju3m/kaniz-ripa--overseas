@@ -27,6 +27,11 @@ class CountryController extends CrudController
         return ['translations'];
     }
 
+    protected function quickToggleFields(): array
+    {
+        return ['is_served'];
+    }
+
     protected function searchColumns(): array
     {
         return ['name'];

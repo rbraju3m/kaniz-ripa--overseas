@@ -33,6 +33,7 @@ Routing gotcha: public routes are declared under literal `/bn` and `/en` (not `/
 - Companies are shown as partners only when `verification_status = verified`.
 - A translation is public only when `is_reviewed = true`.
 - Success stories need `consent_confirmed_at` before publishing.
+- `php artisan app:demo-content` adds clearly labelled sample stories/pages for **local design preview only** (refuses in production); `--remove` deletes exactly that content. Never present demo content as real.
 - Unpublished files live on the private disk and are streamed via controllers.
 
 ## Company profile PDF

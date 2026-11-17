@@ -33,6 +33,7 @@ const en = {
         teamTitle: 'Our team', teamLead: 'Talk directly to the people who handle your recruitment.',
         statCountries: 'Countries served', statPartners: 'Partner companies', statProjects: 'Recruitment projects', statServices: 'Services',
     },
+    cta: { title: 'Planning to recruit workers from Bangladesh?', lead: 'Talk to our team in Banani, Dhaka. Call, message us on WhatsApp or send an enquiry and we will get back to you.' },
     contactFab: { open: 'Contact us', close: 'Close', title: 'Talk to our team', call: 'Call', whatsapp: 'WhatsApp', backToTop: 'Back to top' },
     pages: {
         aboutTitle: 'About us', servicesTitle: 'Our services', portfolioTitle: 'Our portfolio',
@@ -45,7 +46,7 @@ const en = {
         notFoundTitle: 'Page not found', notFoundText: 'The page you are looking for does not exist or is no longer available.',
         goHome: 'Go to homepage',
     },
-    portfolio: { company: 'Company', country: 'Country', industry: 'Industry', date: 'Project date', activities: 'Recruitment activities', gallery: 'Gallery', related: 'Projects with this partner' },
+    portfolio: { more: 'More recruitment projects', moreIn: 'More projects in', company: 'Company', country: 'Country', industry: 'Industry', date: 'Project date', activities: 'Recruitment activities', gallery: 'Gallery', related: 'Projects with this partner' },
     stories: { employer: 'Employer', watchVideo: 'Watch video', readStory: 'Read story' },
     gallery: { photos: 'Photos', videos: 'Videos', close: 'Close', prev: 'Previous image', next: 'Next image' },
     profile: { download: 'Download PDF', preview: 'Preview', updated: 'Updated', size: 'Size', language: 'Language' },

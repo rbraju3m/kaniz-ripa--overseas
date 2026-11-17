@@ -3,6 +3,7 @@ import { Outlet, ScrollRestoration, useLocation } from 'react-router';
 import { AlternatesProvider } from '@/lib/alternates';
 import { I18nProvider } from '@/lib/i18n';
 import type { Locale } from '@/lib/types';
+import { CtaBand } from '@/components/layout/CtaBand';
 import { FloatingContact } from '@/components/layout/FloatingContact';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
@@ -13,6 +14,9 @@ function PageFallback() {
 
 export default function PublicLayout({ locale }: { locale: Locale }) {
     const { pathname } = useLocation();
+    // Pages that already end with the full contact section don't need the closing call-to-action.
+    const rest = pathname.replace(/^\/(bn|en)\/?/, '');
+    const showCta = rest !== '' && !/^(contact|company-profile|services\/[^/]+)\/?$/.test(rest);
     // Cursor position for the .spotlight card glow (one listener for the whole site).
     useEffect(() => {
         const onMove = (e: PointerEvent) => {
@@ -41,6 +45,7 @@ export default function PublicLayout({ locale }: { locale: Locale }) {
                         <Suspense fallback={<PageFallback />}><Outlet /></Suspense>
                     </div>
                 </main>
+                {showCta && <CtaBand />}
                 <Footer />
                 <FloatingContact />
                 <ScrollRestoration />

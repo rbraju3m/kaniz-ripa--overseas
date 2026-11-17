@@ -91,3 +91,20 @@ it('requires the publish permission for the quick status switch', function () {
 
     expect($item->fresh()->status->value)->toBe('draft');
 });
+
+it('shows or hides a country from the list switch', function () {
+    $c = country('AT');
+    actingAsRole('editor');
+
+    $this->patchJson("/api/v1/admin/countries/{$c->id}/toggle", ['field' => 'is_served', 'value' => false])
+        ->assertOk()->assertJsonPath('data.is_served', false);
+    $this->patchJson("/api/v1/admin/countries/{$c->id}/toggle", ['field' => 'is_served', 'value' => true])
+        ->assertOk()->assertJsonPath('data.is_served', true);
+
+    // Only whitelisted fields, and only for modules that allow it.
+    $this->patchJson("/api/v1/admin/countries/{$c->id}/toggle", ['field' => 'sort', 'value' => true])->assertUnprocessable();
+    $this->patchJson('/api/v1/admin/services/1/toggle', ['field' => 'is_featured', 'value' => true])->assertNotFound();
+
+    actingAsRole('viewer');
+    $this->patchJson("/api/v1/admin/countries/{$c->id}/toggle", ['field' => 'is_served', 'value' => false])->assertForbidden();
+});

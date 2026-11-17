@@ -29,8 +29,15 @@ export default function PartnerDetailPage() {
                 {error && !isNotFound(error) && <ErrorState onRetry={() => refetch()} />}
                 {partner && (
                     <div className="grid gap-10 lg:grid-cols-3">
-                        <aside className="h-fit rounded-card bg-white p-8 ring-1 ring-slate-200">
-                            {partner.logo && <ResponsiveImage media={partner.logo} sizes="240px" className="mb-6 h-20 w-auto object-contain" alt={partner.name} />}
+                        <aside className="h-fit rounded-card bg-white p-8 shadow-soft ring-1 ring-slate-200">
+                            {partner.logo
+                                ? <ResponsiveImage media={partner.logo} sizes="240px" className="mb-6 h-20 w-auto object-contain" alt={partner.name} />
+                                : <span aria-hidden className="mb-6 grid size-20 place-items-center rounded-2xl bg-gradient-to-br from-navy-800 to-royal-700 font-display text-3xl font-bold text-white shadow-soft">{partner.name.charAt(0)}</span>}
+                            <p className="font-semibold text-navy-900">{partner.name}</p>
+                            {(partner.industry?.name || partner.country) && (
+                                <p className="mt-1 text-sm text-slate-500">{[partner.industry?.name, partner.country && `${partner.country.flag} ${partner.country.name}`].filter(Boolean).join(' · ')}</p>
+                            )}
+                            {partner.website_url && <div className="mt-6" />}
                             {partner.website_url && (
                                 <ButtonAnchor href={partner.website_url} target="_blank" rel="noopener noreferrer" variant="secondary" size="sm">{t.common.visitWebsite} <ExternalLink className="size-4" /></ButtonAnchor>
                             )}

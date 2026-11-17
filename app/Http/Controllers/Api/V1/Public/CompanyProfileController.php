@@ -26,8 +26,10 @@ class CompanyProfileController extends PublicController
             'locale' => $version->locale,
             'size' => $version->size,
             'updated_at' => $version->created_at?->toIso8601String(),
-            'download_url' => url("/api/v1/company-profile/download?locale={$locale}"),
-            'preview_url' => url("/api/v1/company-profile/download?locale={$locale}&inline=1"),
+            // The version id makes the URL change whenever another PDF becomes current,
+            // so browsers and proxies never serve an outdated cached copy.
+            'download_url' => url("/api/v1/company-profile/download?locale={$locale}&v={$version->id}"),
+            'preview_url' => url("/api/v1/company-profile/download?locale={$locale}&v={$version->id}&inline=1"),
         ]]);
     }
 
@@ -42,7 +44,8 @@ class CompanyProfileController extends PublicController
 
         return Storage::disk($version->disk)->response($version->path, $filename, [
             'Content-Type' => 'application/pdf',
-            'Cache-Control' => 'public, max-age=300',
+            // Versioned URLs (?v=) may be cached; the bare URL must always reflect the current PDF.
+            'Cache-Control' => request()->query('v') == $version->id ? 'public, max-age=86400' : 'no-cache',
             'X-Content-Type-Options' => 'nosniff',
         ], $disposition);
     }

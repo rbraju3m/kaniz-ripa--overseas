@@ -1,15 +1,18 @@
 import { ArrowLeft, Briefcase, Calendar, Factory, Globe2 } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router';
-import { usePortfolio } from '@/hooks/queries';
+import { usePortfolio, usePortfolios } from '@/hooks/queries';
 import { usePublishAlternates } from '@/lib/alternates';
 import { isNotFound } from '@/lib/api';
 import { useI18n } from '@/lib/i18n';
 import { useDocumentMeta } from '@/lib/seo';
+import type { Portfolio } from '@/lib/types';
 import { formatDate, lines } from '@/lib/utils';
 import { Lightbox } from '@/components/ui/Lightbox';
 import { ResponsiveImage } from '@/components/ui/ResponsiveImage';
-import { PageHeader, Section } from '@/components/ui/Section';
+import { PortfolioCard } from '@/components/cards/PortfolioCard';
+import { Reveal } from '@/components/ui/Reveal';
+import { PageHeader, Section, SectionHeading } from '@/components/ui/Section';
 import { ErrorState, FallbackNotice, Skeleton } from '@/components/ui/States';
 import NotFoundPage from './NotFoundPage';
 
@@ -86,7 +89,28 @@ export default function PortfolioDetailPage() {
                     </div>
                 )}
             </Section>
+            {p && <RelatedProjects current={p} />}
             <Lightbox items={images.map((i) => ({ media: i.media, caption: i.caption }))} index={lightbox} onClose={() => setLightbox(null)} onIndex={setLightbox} />
         </>
+    );
+}
+
+/** Other published projects, preferring the same country. */
+function RelatedProjects({ current }: { current: Portfolio }) {
+    const { t, path } = useI18n();
+    const { data: sameCountry } = usePortfolios({ country: current.country?.iso2, per_page: 4 });
+    const { data: all } = usePortfolios({ per_page: 6 });
+    const pool = [...(sameCountry?.data ?? []), ...(all?.data ?? [])].filter((x, i, arr) => x.id !== current.id && arr.findIndex((y) => y.id === x.id) === i);
+    const items = pool.slice(0, 3);
+    if (!items.length) return null;
+    const sameOnly = items.every((x) => x.country?.iso2 === current.country?.iso2) && current.country;
+    return (
+        <Section tone="slate">
+            <SectionHeading eyebrow={t.nav.portfolio} title={sameOnly ? `${t.portfolio.moreIn} ${current.country!.name}` : t.portfolio.more}
+                action={<Link to={path('portfolio')} className="text-sm font-semibold text-navy-800 hover:text-brand-green-700">{t.common.viewAll} →</Link>} />
+            <Reveal stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {items.map((x) => <PortfolioCard key={x.id} item={x} />)}
+            </Reveal>
+        </Section>
     );
 }

@@ -174,3 +174,20 @@ it('blocks viewers from uploading', function () {
     actingAsRole('viewer');
     $this->postJson('/api/v1/admin/company-profile/upload', ['file' => pdfUpload(), 'locale' => 'en'])->assertForbidden();
 });
+
+it('changes the public download URL when another PDF becomes current', function () {
+    actingAsRole();
+    $this->putJson('/api/v1/admin/company-profile', ['active_source' => 'uploaded'])->assertOk();
+    $this->postJson('/api/v1/admin/company-profile/upload', ['file' => pdfUpload(), 'locale' => 'en'])->assertCreated();
+    $first = $this->getJson('/api/v1/company-profile?locale=en')->json('data.download_url');
+
+    $this->postJson('/api/v1/admin/company-profile/upload', ['file' => pdfUpload('new.pdf'), 'locale' => 'en'])->assertCreated();
+    $second = $this->getJson('/api/v1/company-profile?locale=en')->json('data.download_url');
+
+    expect($second)->not->toBe($first);
+
+    // The unversioned URL is never cached; a stale versioned link is not cached long either.
+    $this->get('/api/v1/company-profile/download?locale=en')->assertHeader('Cache-Control', 'no-cache, private');
+    $this->get(parse_url($first, PHP_URL_PATH).'?'.parse_url($first, PHP_URL_QUERY))->assertHeader('Cache-Control', 'no-cache, private');
+    $this->get(parse_url($second, PHP_URL_PATH).'?'.parse_url($second, PHP_URL_QUERY))->assertHeader('Cache-Control', 'max-age=86400, public');
+});

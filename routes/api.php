@@ -72,6 +72,7 @@ Route::prefix('v1')->name('api.')->group(function () {
                 Route::get("{$uri}/{id}", [$controller, 'show'])->whereNumber('id')->middleware("permission:{$module}.view")->name("{$uri}.show");
                 Route::put("{$uri}/{id}", [$controller, 'update'])->whereNumber('id')->middleware("permission:{$module}.update")->name("{$uri}.update");
                 Route::patch("{$uri}/{id}/status", [$controller, 'status'])->whereNumber('id')->middleware("permission:{$module}.update")->name("{$uri}.status");
+                Route::patch("{$uri}/{id}/toggle", [$controller, 'toggle'])->whereNumber('id')->middleware("permission:{$module}.update")->name("{$uri}.toggle");
                 Route::delete("{$uri}/{id}", [$controller, 'destroy'])->whereNumber('id')->middleware("permission:{$module}.delete")->name("{$uri}.destroy");
             }
 

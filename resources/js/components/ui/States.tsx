@@ -1,5 +1,6 @@
 import { AlertTriangle, Sparkles } from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
+import { ButtonLink } from './Button';
 import { cn } from '@/lib/utils';
 import { Button } from './Button';
 
@@ -21,12 +22,14 @@ export function CardGridSkeleton({ count = 3 }: { count?: number }) {
 }
 
 export function EmptyState({ title, text }: { title?: string; text?: string }) {
-    const { t } = useI18n();
+    const { t, path } = useI18n();
     return (
-        <div className="mx-auto flex max-w-md flex-col items-center rounded-card border border-dashed border-navy-200 bg-white px-6 py-14 text-center">
-            <span className="mb-4 grid size-12 place-items-center rounded-full bg-brand-green-100 text-brand-green-700"><Sparkles className="size-5" /></span>
-            <h2 className="text-lg font-semibold">{title ?? t.common.comingSoon}</h2>
-            <p className="mt-2 text-sm text-slate-600">{text ?? t.common.comingSoonText}</p>
+        <div className="relative mx-auto flex max-w-lg flex-col items-center overflow-hidden rounded-[1.5rem] bg-gradient-to-b from-brand-green-50 to-white px-6 py-14 text-center ring-1 ring-brand-green-100">
+            <div aria-hidden className="absolute -top-16 size-48 rounded-full bg-gold-300/20 blur-3xl" />
+            <span className="relative mb-5 grid size-14 place-items-center rounded-2xl bg-white text-brand-green-700 shadow-soft ring-1 ring-brand-green-100"><Sparkles className="size-6 animate-pulse" /></span>
+            <h2 className="relative text-xl font-semibold">{title ?? t.common.comingSoon}</h2>
+            <p className="relative mt-2 max-w-sm text-sm text-slate-600">{text ?? t.common.comingSoonText}</p>
+            <ButtonLink to={path('contact')} variant="secondary" size="sm" className="relative mt-6">{t.home.ctaContact}</ButtonLink>
         </div>
     );
 }

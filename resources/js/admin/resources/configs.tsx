@@ -1,4 +1,5 @@
 import { Star } from 'lucide-react';
+import { QuickToggle } from '../components/QuickToggle';
 import { Badge, ReviewBadges, StatusBadge } from '../components/ui';
 import { date, recordTitle } from '../lib/format';
 import type { AdminRecord, ReferenceData } from '../lib/types';
@@ -217,7 +218,7 @@ export const countriesConfig: ResourceConfig = {
         { label: 'Country', render: (r) => recordTitle(r, 'name') },
         { label: 'Code', render: (r) => { const n = regionName(r.iso2); return <span><span className="font-mono">{String(r.iso2)}</span>{n && <span className="ml-2 text-xs text-slate-500">= {n}</span>}</span>; } },
         reviewCol,
-        { label: 'On website', render: (r) => (r.is_served ? <Badge tone="green">Shown</Badge> : <Badge>Hidden</Badge>) },
+        { label: 'On website', render: (r) => <QuickToggle cfg={{ key: 'countries', endpoint: '/countries', permission: 'countries' }} record={r} field="is_served" onLabel="Shown" offLabel="Hidden" onMessage="Shown on the website (map and countries list)." offMessage="Hidden from the website." /> },
     ],
     defaults: { is_served: true, sort: 0 },
     titleOf: (r) => recordTitle(r, 'name'),

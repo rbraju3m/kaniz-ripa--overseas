@@ -123,6 +123,29 @@ abstract class CrudController extends Controller
         return AdminResource::make($model->refresh()->load($this->listRelations()));
     }
 
+    /** Boolean columns that may be switched on/off straight from the list. */
+    protected function quickToggleFields(): array
+    {
+        return [];
+    }
+
+    /** Quick on/off switch from the list for a whitelisted boolean column. */
+    public function toggle(Request $request, int $id): AdminResource
+    {
+        $fields = $this->quickToggleFields();
+        abort_if($fields === [], 404);
+
+        $data = $request->validate([
+            'field' => ['required', Rule::in($fields)],
+            'value' => ['required', 'boolean'],
+        ]);
+
+        $model = $this->query()->findOrFail($id);
+        $model->update([$data['field'] => (bool) $data['value']]);
+
+        return AdminResource::make($model->refresh()->load($this->listRelations()));
+    }
+
     public function destroy(int $id): JsonResponse
     {
         $model = $this->query()->findOrFail($id);
