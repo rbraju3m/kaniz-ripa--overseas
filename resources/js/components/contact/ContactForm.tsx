@@ -56,9 +56,15 @@ export function ContactForm() {
 
     if (mutation.isSuccess) {
         return (
-            <div role="status" className="flex flex-col items-center rounded-card bg-brand-green-50 px-6 py-12 text-center ring-1 ring-brand-green-200">
-                <CheckCircle2 className="mb-4 size-10 text-brand-green-700" />
-                <p className="max-w-sm text-navy-900">{t.contact.success}</p>
+            <div role="status" className="relative flex animate-fade-up flex-col items-center overflow-hidden rounded-card bg-brand-green-50 px-6 py-12 text-center ring-1 ring-brand-green-200">
+                <div aria-hidden className="absolute -top-16 size-56 rounded-full bg-gold-300/25 blur-3xl" />
+                <span className="relative mb-5 grid size-16 place-items-center">
+                    <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-brand-green-500/30 [animation-iteration-count:2]" />
+                    <span className="relative grid size-16 place-items-center rounded-full bg-brand-green-700 text-white shadow-lift animate-[pop_0.5s_cubic-bezier(0.2,0.9,0.3,1.4)_both]">
+                        <CheckCircle2 className="size-8" />
+                    </span>
+                </span>
+                <p className="relative max-w-sm text-lg text-navy-900">{t.contact.success}</p>
                 <Button variant="secondary" size="sm" className="mt-6" onClick={() => mutation.reset()}>{t.contact.formTitle}</Button>
             </div>
         );

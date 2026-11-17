@@ -17,7 +17,7 @@ export default function HomePage() {
                     <PartnerMarquee partners={home.partners} />
                     <IntroAndAbout home={home} />
                     <ServicesSection home={home} />
-                    <CountriesSection countries={home.countries} />
+                    <CountriesSection countries={home.countries} projects={home.country_projects} />
                     <PartnersSection home={home} />
                     <PortfolioSection home={home} />
                     {home.team && <TeamSection home={home} />}

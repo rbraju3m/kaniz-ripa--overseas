@@ -164,6 +164,7 @@ export interface HomePayload {
     success_stories: SuccessStory[];
     team: TeamMember[];
     stats: { countries: number; partners: number; projects: number; services: number };
+    country_projects?: Record<string, number>;
     company_profile_available: boolean;
 }
 

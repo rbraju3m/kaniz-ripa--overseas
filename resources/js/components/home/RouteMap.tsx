@@ -1,3 +1,4 @@
+import { useEffect, useId, useState } from 'react';
 import type { Country } from '@/lib/types';
 
 /** Approximate capital coordinates [lon, lat], so any country added in the CMS appears on the map. */
@@ -48,44 +49,89 @@ function makeProjection(coords: [number, number][]) {
     return ([lon, lat]: [number, number]) => [ox + (lon - lon0) * k, oy + (lat1 - lat) * k] as const;
 }
 
-export function RouteMap({ countries, homeLabel = 'Dhaka' }: { countries: Country[]; homeLabel?: string }) {
+/** True when the visitor asked for reduced motion (SVG SMIL animations ignore the CSS rule). */
+function useReducedMotion() {
+    const [reduce, setReduce] = useState(false);
+    useEffect(() => {
+        const mq = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+        if (!mq) return;
+        const update = () => setReduce(mq.matches);
+        update();
+        mq.addEventListener('change', update);
+        return () => mq.removeEventListener('change', update);
+    }, []);
+    return reduce;
+}
+
+/**
+ * Animated routes from Dhaka: small planes fly each route, destinations pulse, and the
+ * route of the hovered (or `active`) country is highlighted.
+ */
+export function RouteMap({ countries, homeLabel = 'Dhaka', active = null, onHover }: {
+    countries: Country[]; homeLabel?: string; active?: string | null; onHover?: (iso2: string | null) => void;
+}) {
+    const uid = useId().replace(/:/g, '');
+    const reduce = useReducedMotion();
+    const [hovered, setHovered] = useState<string | null>(null);
+    const focus = active ?? hovered;
     const known = countries.filter((c) => COORDS[c.iso2]);
     const project = makeProjection([DHAKA, ...known.map((c) => COORDS[c.iso2])]);
     const [dx, dy] = project(DHAKA);
     const points = known.map((c) => ({ c, xy: project(COORDS[c.iso2]) }));
+    const hover = (iso: string | null) => { setHovered(iso); onHover?.(iso); };
 
     return (
         <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={countries.map((c) => c.name).join(', ')}>
             <defs>
-                <pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.5" fill="currentColor" /></pattern>
-                <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+                <pattern id={`dots-${uid}`} width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.5" fill="currentColor" /></pattern>
+                <radialGradient id={`glow-${uid}`} cx="50%" cy="50%" r="50%">
                     <stop offset="0%" stopColor="#E9C46A" stopOpacity="0.55" />
                     <stop offset="100%" stopColor="#E9C46A" stopOpacity="0" />
                 </radialGradient>
-                <linearGradient id="route" x1="0" x2="1">
+                <linearGradient id={`route-${uid}`} x1="0" x2="1">
                     <stop offset="0%" stopColor="#E9C46A" />
                     <stop offset="100%" stopColor="#22a052" />
                 </linearGradient>
             </defs>
-            <rect width={W} height={H} fill="url(#dots)" className="text-white/[0.07]" />
-            {points.map(({ c, xy: [x, y] }) => {
+            <rect width={W} height={H} fill={`url(#dots-${uid})`} className="text-white/[0.07]" />
+            {points.map(({ c, xy: [x, y] }, i) => {
                 const mx = (dx + x) / 2, my = Math.min(dy, y) - 40 - Math.abs(dx - x) * 0.25;
+                const routeId = `r-${uid}-${c.iso2}`;
+                const on = focus === c.iso2;
+                const dim = !!focus && !on;
                 return (
-                    <g key={c.iso2}>
-                        <path d={`M${dx},${dy} Q${mx},${my} ${x},${y}`} fill="none" stroke="url(#route)" strokeWidth="2" strokeLinecap="round" strokeDasharray="5 7">
-                            <animate attributeName="stroke-dashoffset" from="120" to="0" dur="6s" repeatCount="indefinite" />
+                    <g key={c.iso2} className="cursor-pointer transition-opacity duration-300" style={{ opacity: dim ? 0.3 : 1 }}
+                        onMouseEnter={() => hover(c.iso2)} onMouseLeave={() => hover(null)}>
+                        <path id={routeId} d={`M${dx},${dy} Q${mx},${my} ${x},${y}`} fill="none" stroke={`url(#route-${uid})`} strokeWidth={on ? 3.5 : 2} strokeLinecap="round" strokeDasharray="5 7" className="transition-[stroke-width] duration-300">
+                            {!reduce && <animate attributeName="stroke-dashoffset" from="120" to="0" dur="6s" repeatCount="indefinite" />}
                         </path>
-                        <circle cx={x} cy={y} r="18" fill="url(#glow)" />
-                        <circle cx={x} cy={y} r="5" fill="#fff" stroke="#22a052" strokeWidth="3" />
+                        {/* Wide invisible hit area so the route is easy to hover. */}
+                        <path d={`M${dx},${dy} Q${mx},${my} ${x},${y}`} fill="none" stroke="transparent" strokeWidth="16" />
+                        {!reduce && (
+                            <g>
+                                <path d="M7,0 L-5,-5 L-2.5,0 L-5,5 Z" fill="#fff" stroke="#E9C46A" strokeWidth="1" />
+                                <animateMotion dur={`${4.5 + (i % 3)}s`} begin={`${i * 0.9}s`} repeatCount="indefinite" rotate="auto" keyPoints="0;1" keyTimes="0;1" calcMode="linear">
+                                    <mpath href={`#${routeId}`} />
+                                </animateMotion>
+                            </g>
+                        )}
+                        <circle cx={x} cy={y} r={on ? 26 : 18} fill={`url(#glow-${uid})`} className="transition-all duration-300" />
+                        {!reduce && (
+                            <circle cx={x} cy={y} r="6" fill="none" stroke="#22a052" strokeWidth="2">
+                                <animate attributeName="r" from="6" to="22" dur="2.4s" begin={`${i * 0.4}s`} repeatCount="indefinite" />
+                                <animate attributeName="opacity" from="0.8" to="0" dur="2.4s" begin={`${i * 0.4}s`} repeatCount="indefinite" />
+                            </circle>
+                        )}
+                        <circle cx={x} cy={y} r={on ? 7 : 5} fill="#fff" stroke="#22a052" strokeWidth="3" className="transition-all duration-300" />
                         <foreignObject x={x - 80} y={y + 10} width="160" height="40">
                             <div className="flex justify-center">
-                                <span className="whitespace-nowrap rounded-full bg-white/95 px-3 py-1 text-[13px] font-semibold text-navy-900 shadow">{c.flag} {c.name}</span>
+                                <span className={`whitespace-nowrap rounded-full px-3 py-1 text-[13px] font-semibold shadow transition duration-300 ${on ? 'scale-110 bg-gold-300 text-navy-950' : 'bg-white/95 text-navy-900'}`}>{c.flag} {c.name}</span>
                             </div>
                         </foreignObject>
                     </g>
                 );
             })}
-            <circle cx={dx} cy={dy} r="34" fill="url(#glow)" />
+            <circle cx={dx} cy={dy} r="34" fill={`url(#glow-${uid})`} />
             <circle cx={dx} cy={dy} r="7" fill="#E9C46A" stroke="#fff" strokeWidth="3" />
             <text x={dx} y={dy - 18} textAnchor="middle" className="fill-white text-[14px] font-semibold">{homeLabel} 🇧🇩</text>
         </svg>

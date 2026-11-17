@@ -30,6 +30,7 @@ const en = {
         profileTitle: 'Download our company profile', profileLead: 'A concise overview of our company, services and recruitment activities.',
         profileUnavailable: 'Our company profile is being prepared. Contact us and we will share it with you.',
         contactTitle: 'Visit or call our office',
+        projectsCount: '{n} recruitment projects', projectCount: '1 recruitment project', exploreHint: 'Hover or tap a country to see its route from Dhaka.',
         teamTitle: 'Our team', teamLead: 'Talk directly to the people who handle your recruitment.',
         statCountries: 'Countries served', statPartners: 'Partner companies', statProjects: 'Recruitment projects', statServices: 'Services',
     },

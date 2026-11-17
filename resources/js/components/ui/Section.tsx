@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { Reveal } from './Reveal';
 
@@ -28,7 +28,15 @@ export function SectionHeading({ eyebrow, title, lead, align = 'left', action, d
                         {eyebrow}
                     </p>
                 )}
-                <h2 className={cn('text-3xl font-bold sm:text-4xl', dark && 'text-white')}>{title}</h2>
+                <h2 className={cn('text-3xl font-bold sm:text-4xl', dark && 'text-white')}>
+                    {/* Words rise in one after another once the section is revealed. */}
+                    {title.split(' ').map((word, i) => (
+                        <Fragment key={i}>
+                            {i > 0 && ' '}
+                            <span className="inline-block translate-y-3 opacity-0 transition duration-700 ease-out in-[.is-visible]:translate-y-0 in-[.is-visible]:opacity-100" style={{ transitionDelay: `${120 + i * 70}ms` }}>{word}</span>
+                        </Fragment>
+                    ))}
+                </h2>
                 {lead && <p className={cn('mt-4 text-lg', dark ? 'text-navy-200' : 'text-slate-600')}>{lead}</p>}
             </div>
             {action && <div className="shrink-0">{action}</div>}

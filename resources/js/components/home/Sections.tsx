@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import { useSite } from '@/hooks/queries';
 import { useI18n } from '@/lib/i18n';
 import type { Country, HomePayload, Page } from '@/lib/types';
-import { cn, toE164 } from '@/lib/utils';
+import { cn, formatNumber, toE164 } from '@/lib/utils';
 import { PartnerCard } from '../cards/PartnerCard';
 import { PortfolioCard } from '../cards/PortfolioCard';
 import { ServiceCard } from '../cards/ServiceCard';
@@ -193,21 +193,45 @@ export function ServicesSection({ home }: { home: HomePayload }) {
     );
 }
 
-export function CountriesSection({ countries }: { countries: Country[] }) {
-    const { t, path } = useI18n();
+/** Interactive explorer: country cards beside the route map; hovering either highlights the route. */
+export function CountriesSection({ countries, projects = {} }: { countries: Country[]; projects?: Record<string, number> }) {
+    const { t, path, locale } = useI18n();
+    const [active, setActive] = useState<string | null>(null);
     if (!countries.length) return null;
+    const count = (iso: string) => projects[iso] ?? 0;
     return (
         <Section>
-            <SectionHeading eyebrow={t.portfolio.country} title={t.home.countriesTitle} lead={t.home.countriesLead} align="center" />
-            <Reveal stagger className="mx-auto grid max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {countries.map((c) => (
-                    <Link key={c.iso2} to={`${path('portfolio')}?country=${c.iso2}`} className="spotlight group flex items-center gap-4 rounded-card bg-brand-green-50 p-5 ring-1 ring-brand-green-100 transition duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lift">
-                        <span className="text-4xl transition duration-300 group-hover:-rotate-6 group-hover:scale-125" aria-hidden>{c.flag}</span>
-                        <span className="flex-1 text-lg font-semibold text-navy-900">{c.name}</span>
-                        <ArrowRight className="size-5 text-navy-300 transition group-hover:translate-x-1 group-hover:text-brand-green-700" aria-hidden />
-                    </Link>
-                ))}
-            </Reveal>
+            <SectionHeading eyebrow={t.portfolio.country} title={t.home.countriesTitle} lead={t.home.countriesLead} />
+            <div className="grid items-center gap-8 lg:grid-cols-5">
+                <Reveal stagger className="grid gap-3 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-1">
+                    {countries.map((c) => {
+                        const n = count(c.iso2);
+                        const on = active === c.iso2;
+                        return (
+                            <Link key={c.iso2} to={`${path('portfolio')}?country=${c.iso2}`}
+                                onMouseEnter={() => setActive(c.iso2)} onMouseLeave={() => setActive(null)} onFocus={() => setActive(c.iso2)} onBlur={() => setActive(null)}
+                                className={cn('spotlight group flex items-center gap-4 rounded-card p-4 ring-1 transition duration-300', on ? 'bg-white shadow-lift ring-gold-300 lg:translate-x-2' : 'bg-brand-green-50 ring-brand-green-100')}>
+                                <span className={cn('grid size-12 shrink-0 place-items-center rounded-xl bg-white text-3xl shadow-soft transition duration-300', on && '-rotate-6 scale-110')} aria-hidden>{c.flag}</span>
+                                <span className="min-w-0 flex-1">
+                                    <span className="block text-lg font-semibold text-navy-900">{c.name}</span>
+                                    {n > 0 && <span className="block text-sm text-slate-500">{n === 1 ? t.home.projectCount : t.home.projectsCount.replace('{n}', formatNumber(n, locale))}</span>}
+                                </span>
+                                <ArrowRight className={cn('size-5 transition', on ? 'translate-x-1 text-brand-green-700' : 'text-navy-300')} aria-hidden />
+                            </Link>
+                        );
+                    })}
+                </Reveal>
+                <div className="lg:col-span-3">
+                    <div className="relative overflow-hidden rounded-[2rem] bg-navy-900 p-4 shadow-lift sm:p-6">
+                        <div aria-hidden className="absolute -right-20 -top-20 size-72 animate-float-slow rounded-full bg-royal-600/40 blur-3xl" />
+                        <div aria-hidden className="absolute -bottom-24 -left-10 size-64 animate-float-slower rounded-full bg-brand-green-700/30 blur-3xl" />
+                        <div className="relative">
+                            <RouteMap countries={countries} homeLabel={t.home.dhaka} active={active} onHover={setActive} />
+                            <p className="px-2 pt-1 text-center text-xs text-navy-300">{t.home.exploreHint}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </Section>
     );
 }

@@ -72,6 +72,10 @@ class HomeController extends PublicController
                 'projects' => Portfolio::query()->published()->hasReviewedTranslation()->count(),
                 'services' => Service::query()->published()->hasReviewedTranslation()->count(),
             ],
+            // Published projects per country (ISO code => count), for the countries explorer.
+            'country_projects' => Portfolio::query()->published()->hasReviewedTranslation()->whereNotNull('country_id')
+                ->with('country:id,iso2')->get(['id', 'country_id'])
+                ->countBy(fn (Portfolio $p) => $p->country?->iso2)->filter(fn ($n, $iso) => $iso !== '')->all(),
             'company_profile_available' => (bool) $profile?->isAvailable(),
         ];
 
