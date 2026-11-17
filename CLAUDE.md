@@ -9,7 +9,7 @@ Single Laravel 13 project (do **not** split into separate backend/frontend proje
 - Laravel at the repo root: REST API under `/api/v1`, Sanctum SPA cookie auth, MySQL 8, Pest tests.
 - `resources/js/`: React + TypeScript SPA (public site + `/admin`), built by Laravel's Vite plugin to `public/build/`.
 - `resources/views/app.blade.php`: SPA shell, with SEO meta injected server-side by `SpaController`.
-- `docs/`: ARCHITECTURE.md, DATABASE.md, UI-UX.md, MISSING-INFO.md, DEPLOYMENT.md, brand-assets/.
+- `docs/`: ARCHITECTURE.md, DATABASE.md, UI-UX.md, TESTING.md (how to run every suite + perf results), MISSING-INFO.md, DEPLOYMENT.md, brand-assets/.
 
 Read `docs/ARCHITECTURE.md` and `docs/DATABASE.md` before structural changes.
 

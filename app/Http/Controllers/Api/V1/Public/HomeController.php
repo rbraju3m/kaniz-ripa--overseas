@@ -25,6 +25,12 @@ class HomeController extends PublicController
 {
     public function __invoke(): JsonResponse
     {
+        return response()->json(['data' => self::payload()]);
+    }
+
+    /** Also embedded into the homepage HTML by SpaController (no extra request on first load). */
+    public static function payload(): array
+    {
         $pages = Page::query()->published()->hasReviewedTranslation()
             ->whereIn('key', ['home_intro', 'about', 'why_choose_us'])
             ->with(['translations', 'cover', 'sections.translations', 'sections.media'])
@@ -32,7 +38,7 @@ class HomeController extends PublicController
 
         $profile = CompanyProfile::query()->first();
 
-        return response()->json(['data' => [
+        $data = [
             'intro' => $pages->has('home_intro') ? PageResource::make($pages['home_intro']) : null,
             'about' => $pages->has('about') ? PageResource::make($pages['about']) : null,
             'why_choose_us' => $pages->has('why_choose_us') ? PageResource::make($pages['why_choose_us']) : null,
@@ -59,6 +65,9 @@ class HomeController extends PublicController
             ),
             'company_profile_available' => (bool) $profile?->isPublished()
                 && $profile->activeVersion(app()->getLocale()) !== null,
-        ]]);
+        ];
+
+        // Resolve API resources into plain arrays.
+        return json_decode(json_encode($data, JSON_UNESCAPED_UNICODE), true);
     }
 }

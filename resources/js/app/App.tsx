@@ -15,6 +15,14 @@ export const queryClient = new QueryClient({
     },
 });
 
+// The server renders the site payload (settings, menus, logo) into the page;
+// seed it so the header/footer render without an extra request.
+const boot = window.__KRO__;
+if (boot?.site && (boot.locale === 'bn' || boot.locale === 'en')) {
+    queryClient.setQueryData(['site', boot.locale, {}], { data: boot.site });
+    if (boot.home) queryClient.setQueryData(['home', boot.locale, {}], { data: boot.home });
+}
+
 export default function App() {
     return (
         <QueryClientProvider client={queryClient}>

@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Web;
 
 use App\Enums\Locale;
+use App\Http\Controllers\Api\V1\Public\HomeController;
+use App\Http\Controllers\Api\V1\Public\SiteController;
 use App\Http\Controllers\Controller;
 use App\Services\SeoService;
-use App\Services\SettingsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -20,15 +21,38 @@ class SpaController extends Controller
         return redirect("/{$preferred}", 302)->header('Vary', 'Accept-Language');
     }
 
-    public function public(Request $request, SeoService $seo, SettingsService $settings, string $locale, ?string $section = null, ?string $slug = null): Response
+    public function public(Request $request, SeoService $seo, string $locale, ?string $section = null, ?string $slug = null): Response
     {
         app()->setLocale($locale);
         $meta = $seo->forPath($locale, $section ?? '', $slug);
 
         return response()->view('app', [
             'meta' => $meta,
-            'bootstrap' => ['locale' => $locale, 'settings' => $settings->publicPayload()],
+            'pageChunk' => self::pageChunk($section ?? '', $slug),
+            'bootstrap' => array_filter([
+                'locale' => $locale,
+                'site' => SiteController::payload(),
+                'home' => ($section ?? '') === '' ? HomeController::payload() : null,
+            ]),
         ], $meta['status']);
+    }
+
+    /** Lazy route chunk for this URL, preloaded by the shell (mirrors resources/js/app/router.tsx). */
+    private static function pageChunk(string $section, ?string $slug): ?string
+    {
+        $page = match ($section) {
+            'about' => 'AboutPage',
+            'services' => $slug ? 'ServiceDetailPage' : 'ServicesPage',
+            'portfolio' => $slug ? 'PortfolioDetailPage' : 'PortfolioPage',
+            'partners' => $slug ? 'PartnerDetailPage' : 'PartnersPage',
+            'success-stories' => $slug ? 'StoryDetailPage' : 'StoriesPage',
+            'gallery' => 'GalleryPage',
+            'company-profile' => 'CompanyProfilePage',
+            'contact' => 'ContactPage',
+            default => null,
+        };
+
+        return $page ? "resources/js/pages/{$page}.tsx" : null;
     }
 
     public function admin(): Response

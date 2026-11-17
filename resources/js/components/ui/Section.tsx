@@ -22,7 +22,7 @@ export function SectionHeading({ eyebrow, title, lead, align = 'left', action, d
         <div className={cn('mb-10 flex flex-col gap-4 sm:mb-12', align === 'center' ? 'items-center text-center' : 'sm:flex-row sm:items-end sm:justify-between')}>
             <div className={cn('max-w-2xl', align === 'center' && 'mx-auto')}>
                 {eyebrow && (
-                    <p className={cn('tracking-eyebrow mb-3 flex items-center gap-3 text-xs font-semibold', align === 'center' && 'justify-center', dark ? 'text-gold-300' : 'text-gold-600')}>
+                    <p className={cn('tracking-eyebrow mb-3 flex items-center gap-3 text-xs font-semibold', align === 'center' && 'justify-center', dark ? 'text-gold-300' : 'text-gold-700')}>
                         <span aria-hidden className="h-px w-8 bg-current" />
                         {eyebrow}
                     </p>

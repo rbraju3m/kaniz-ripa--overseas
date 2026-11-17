@@ -7,7 +7,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 
 function PageFallback() {
-    return <div className="min-h-[70vh] bg-navy-900" aria-busy="true" />;
+    return <div className="min-h-[100svh] bg-navy-900" aria-busy="true" />;
 }
 
 export default function PublicLayout({ locale }: { locale: Locale }) {

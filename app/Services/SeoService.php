@@ -58,7 +58,8 @@ class SeoService
         }
 
         if ($section !== '') {
-            $meta['title'] = ($locale === 'bn' ? $bnTitle : $enTitle)." | {$siteName}";
+            $meta['heading'] = $locale === 'bn' ? $bnTitle : $enTitle;
+            $meta['title'] = "{$meta['heading']} | {$siteName}";
         }
 
         $record = $slug ? $this->findRecord($section, $slug) : null;
@@ -97,7 +98,7 @@ class SeoService
         }
 
         if ($section !== '') {
-            $meta['jsonLd'][] = $this->breadcrumbs($locale, $siteName, $section, $bnTitle, $enTitle, $record ? $meta['heading'] ?? null : null);
+            $meta['jsonLd'][] = $this->breadcrumbs($locale, $siteName, $section, $bnTitle, $enTitle, $record ? ($meta['heading'] ?? null) : null);
         }
 
         $meta['description'] = Str::limit(trim(strip_tags((string) $meta['description'])), 300);

@@ -79,3 +79,12 @@ it('reads settings back from a persistent cache store', function () {
 
     Cache::store('file')->flush();
 });
+
+it('embeds the site payload so the client skips a request', function () {
+    $this->seed(\Database\Seeders\SiteStructureSeeder::class);
+
+    $this->get('/en')->assertOk()
+        ->assertSee('"site":{"locale":"en"', false)
+        ->assertSee('"menus":{"header"', false)
+        ->assertDontSee('[PLACEHOLDER]', false);
+});

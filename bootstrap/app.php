@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Middleware\PublicCacheHeaders;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
@@ -20,8 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Sanctum SPA cookie authentication for same-origin requests from the React app.
         $middleware->statefulApi();
+        // General API rate limit (see AppServiceProvider "api" limiter); stricter limits on login/contact/downloads.
+        $middleware->throttleApi();
         $middleware->append(SecurityHeaders::class);
-        $middleware->api(append: [SetLocale::class]);
+        $middleware->api(append: [SetLocale::class, PublicCacheHeaders::class]);
         $middleware->web(append: [SetLocale::class]);
 
         $middleware->alias([

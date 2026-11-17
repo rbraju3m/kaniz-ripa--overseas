@@ -13,7 +13,7 @@ export function Logo({ dark = false, className }: { dark?: boolean; className?: 
     const logoUrl = site?.logo_url;
 
     return (
-        <Link to={path()} className={cn('group flex items-center gap-3', className)} aria-label="Kaniz Ripa Overseas — home">
+        <Link to={path()} className={cn('group flex items-center gap-3', className)}>
             {logoUrl ? (
                 <img src={logoUrl} alt="" className="size-11 rounded-full bg-white object-contain p-0.5" width={44} height={44} />
             ) : (

@@ -65,7 +65,7 @@ export function Footer() {
                 </div>
             </div>
             <div className="border-t border-white/10">
-                <div className="container-page flex flex-col gap-2 py-6 text-xs text-navy-400 sm:flex-row sm:justify-between">
+                <div className="container-page flex flex-col gap-2 py-6 text-xs text-navy-300 sm:flex-row sm:justify-between">
                     <p>© {year} {t.meta.siteName}. {t.footer.rights}</p>
                 </div>
             </div>

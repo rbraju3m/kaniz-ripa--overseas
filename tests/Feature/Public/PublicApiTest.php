@@ -98,3 +98,17 @@ it('sends security headers', function () {
         ->assertHeader('X-Content-Type-Options', 'nosniff')
         ->assertHeader('X-Frame-Options', 'SAMEORIGIN');
 });
+
+it('applies the general API rate limit', function () {
+    foreach (range(1, 120) as $_) {
+        $this->getJson('/api/v1/countries')->assertOk();
+    }
+    $this->getJson('/api/v1/countries')->assertStatus(429);
+});
+
+it('sends short cache headers on public reads only', function () {
+    $this->getJson('/api/v1/countries')->assertHeader('Cache-Control', 'max-age=60, public, stale-while-revalidate=300');
+
+    actingAsRole();
+    expect($this->getJson('/api/v1/admin/countries')->headers->get('Cache-Control'))->not->toContain('public');
+});

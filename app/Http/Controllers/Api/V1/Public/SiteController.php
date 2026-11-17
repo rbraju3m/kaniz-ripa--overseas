@@ -13,20 +13,24 @@ use Illuminate\Http\JsonResponse;
 
 class SiteController extends PublicController
 {
-    /** Global site payload: settings + menus. Cached by the client. */
-    public function show(SettingsService $settings): JsonResponse
+    /** Global site payload: settings + menus + logo. */
+    public function show(): JsonResponse
     {
-        $menus = Menu::query()->with(['items' => fn ($q) => $q->where('is_active', true)])->get()
-            ->mapWithKeys(fn (Menu $menu) => [$menu->location => $this->tree($menu->items)]);
+        return response()->json(['data' => self::payload()]);
+    }
 
-        return response()->json([
-            'data' => [
-                'locale' => app()->getLocale(),
-                'logo_url' => ($id = $settings->get('logo_media_id')) ? Media::query()->find($id)?->url('sm') : null,
-                'settings' => $settings->publicPayload(),
-                'menus' => $menus,
-            ],
-        ]);
+    public static function payload(): array
+    {
+        $settings = app(SettingsService::class);
+        $menus = Menu::query()->with(['items' => fn ($q) => $q->where('is_active', true)])->get()
+            ->mapWithKeys(fn (Menu $menu) => [$menu->location => self::tree($menu->items)]);
+
+        return [
+            'locale' => app()->getLocale(),
+            'logo_url' => ($id = $settings->get('logo_media_id')) ? Media::query()->find($id)?->url('sm') : null,
+            'settings' => $settings->publicPayload(),
+            'menus' => $menus,
+        ];
     }
 
     public function countries(): JsonResponse
@@ -43,7 +47,7 @@ class SiteController extends PublicController
         return response()->json(['data' => IndustryResource::collection($industries)]);
     }
 
-    private function tree($items, ?int $parentId = null): array
+    private static function tree($items, ?int $parentId = null): array
     {
         $locale = app()->getLocale();
 
@@ -53,7 +57,7 @@ class SiteController extends PublicController
             'route' => $item->route_name,
             'url' => $item->url,
             'new_tab' => $item->open_in_new_tab,
-            'children' => $this->tree($items, $item->id),
+            'children' => self::tree($items, $item->id),
         ])->all();
     }
 }

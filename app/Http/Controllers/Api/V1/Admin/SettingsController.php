@@ -38,6 +38,17 @@ class SettingsController extends Controller
             'settings.whatsapp_number' => ['nullable', 'regex:/^\+?[0-9]{8,15}$/'],
             'settings.logo_media_id' => ['nullable', 'integer', 'exists:media,id'],
             'settings.default_og_media_id' => ['nullable', 'integer', 'exists:media,id'],
+            'settings.phone' => ['nullable', 'string', 'max:30', 'regex:/^[0-9+\-\s()]{6,30}$/'],
+            'settings.show_contact_persons' => ['nullable', 'boolean'],
+            'settings.show_bismillah' => ['nullable', 'boolean'],
+            'settings.mobiles' => ['nullable', 'array', 'max:10'],
+            'settings.mobiles.*.number' => ['required', 'string', 'regex:/^\+?[0-9\s-]{8,20}$/'],
+            'settings.mobiles.*.name.bn' => ['nullable', 'string', 'max:80'],
+            'settings.mobiles.*.name.en' => ['nullable', 'string', 'max:80'],
+            'settings.mobiles.*.role.bn' => ['nullable', 'string', 'max:80'],
+            'settings.mobiles.*.role.en' => ['nullable', 'string', 'max:80'],
+            'settings.mobiles.*.whatsapp' => ['boolean'],
+            'settings.*' => ['nullable'],
         ]);
 
         $settings = Setting::query()->whereIn('key', array_keys($data['settings']))->get()->keyBy('key');

@@ -10,7 +10,7 @@ function Row({ icon, label, children }: { icon: ReactNode; label: string; childr
         <li className="flex gap-4">
             <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-green-100 text-brand-green-700">{icon}</span>
             <div className="min-w-0">
-                <p className="text-xs font-semibold text-slate-500">{label}</p>
+                <p className="text-xs font-semibold text-slate-600">{label}</p>
                 <div className="mt-0.5 font-medium text-navy-900">{children}</div>
             </div>
         </li>

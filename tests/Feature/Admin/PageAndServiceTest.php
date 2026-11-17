@@ -85,3 +85,15 @@ it('manages page sections and exposes only reviewed, active ones', function () {
         ->assertJsonCount(2, 'data.sections')
         ->assertJsonPath('data.sections.0.key', 'hidden');
 });
+
+it('validates the contact persons structure in settings', function () {
+    $this->seed(\Database\Seeders\SettingsSeeder::class);
+
+    $this->putJson('/api/v1/admin/settings', ['settings' => ['mobiles' => [['number' => 'call me', 'whatsapp' => 'yes']]]])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['settings.mobiles.0.number', 'settings.mobiles.0.whatsapp']);
+
+    $this->putJson('/api/v1/admin/settings', ['settings' => ['mobiles' => [['number' => '01732803369', 'name' => ['en' => 'Moniruzzaman <b>x</b>'], 'role' => ['en' => 'MD'], 'whatsapp' => true]]]])
+        ->assertOk();
+    expect(\App\Models\Setting::query()->where('key', 'mobiles')->first()->value['v'][0]['name']['en'])->toBe('Moniruzzaman x');
+});

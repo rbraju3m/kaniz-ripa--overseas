@@ -25,7 +25,7 @@ export function EmptyState({ title, text }: { title?: string; text?: string }) {
     return (
         <div className="mx-auto flex max-w-md flex-col items-center rounded-card border border-dashed border-navy-200 bg-white px-6 py-14 text-center">
             <span className="mb-4 grid size-12 place-items-center rounded-full bg-brand-green-100 text-brand-green-700"><Sparkles className="size-5" /></span>
-            <h3 className="text-lg font-semibold">{title ?? t.common.comingSoon}</h3>
+            <h2 className="text-lg font-semibold">{title ?? t.common.comingSoon}</h2>
             <p className="mt-2 text-sm text-slate-600">{text ?? t.common.comingSoonText}</p>
         </div>
     );
