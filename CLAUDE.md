@@ -25,6 +25,7 @@ Routing gotcha: public routes are declared under literal `/bn` and `/en` (not `/
 - JS (Node 22+, installed via nvm: `. ~/.nvm/nvm.sh` in non-interactive shells): `npm install && npm run dev | build | test | typecheck | lint`
 - Local dev: `composer run dev` (serve + queue + vite). PDF generation is queued, so a queue worker must run.
 - Deployment check: `php artisan app:check-deployment` (exit 1 on critical problems). Deploy files live in `deploy/`; see `docs/DEPLOYMENT.md`. Production runs everything as the `kaniz` user, never `www-data`.
+- Super Admin (`ADMIN_EMAIL`/`ADMIN_PASSWORD`, `config/admin.php`) is ensured automatically after every `migrate*` command, on `composer run dev` and via `php artisan app:ensure-super-admin` (`App\Support\SuperAdmin`). It never resets an existing password. Never hardcode credentials in code or committed files.
 
 ## Content rules (non-negotiable)
 

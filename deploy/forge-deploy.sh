@@ -9,6 +9,7 @@ npm ci --no-audit --no-fund
 npm run build
 
 $FORGE_PHP artisan migrate --force
+$FORGE_PHP artisan app:ensure-super-admin
 $FORGE_PHP artisan storage:link --force
 $FORGE_PHP artisan optimize
 

@@ -53,6 +53,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
+            "@php artisan app:ensure-super-admin --no-interaction",
             "@php artisan dev"
         ],
         "test": [

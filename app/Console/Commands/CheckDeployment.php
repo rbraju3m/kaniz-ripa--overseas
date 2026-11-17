@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use App\Support\Permissions;
+use App\Support\SuperAdmin;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -73,7 +74,7 @@ class CheckDeployment extends Command
         $host = parse_url((string) config('app.url'), PHP_URL_HOST);
         $stateful = (array) config('sanctum.stateful');
         $this->check('Sanctum stateful domain', $host && in_array($host, $stateful, true), $prod ? 'fail' : 'warn', 'SANCTUM_STATEFUL_DOMAINS');
-        $this->check('Admin seed password removed from .env', blank(env('ADMIN_PASSWORD')), $prod ? 'fail' : 'warn', 'delete ADMIN_PASSWORD after first seed');
+        $this->check('Super Admin password stored as a hash, not plain text', blank(config('admin.super_admin.password')) || SuperAdmin::passwordIsHashed(), $prod ? 'fail' : 'warn', 'ADMIN_PASSWORD should be a bcrypt hash (see config/admin.php)');
 
         // Mail & backups
         $this->check('Mail transport configured', ! in_array(config('mail.default'), ['log', 'array'], true), 'warn', (string) config('mail.default'));

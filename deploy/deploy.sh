@@ -49,6 +49,7 @@ rm -rf node_modules
 
 log "Database migrations"
 php artisan migrate --force
+php artisan app:ensure-super-admin
 
 log "Caching configuration, routes, views, events"
 php artisan storage:link --force

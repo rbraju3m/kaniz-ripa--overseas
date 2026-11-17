@@ -110,12 +110,19 @@ APP_ROOT=/var/www/kaniz-ripa REPO=git@github.com:ORG/kaniz-ripa--overseas.git BR
 
 `deploy/deploy.sh` (run as `kaniz`, `umask 027`) clones into `releases/<timestamp>`, links the shared `.env` and `storage`, runs `composer install --no-dev`, `npm ci && npm run build`, `migrate --force`, `optimize`, switches the `current` symlink atomically, reloads PHP-FPM, restarts queue workers, keeps the last 5 releases and finishes with `php artisan app:check-deployment`.
 
-**First deploy only:** create the Super Admin, then remove the seed password:
+**Super Admin.** The account in `ADMIN_EMAIL` is guaranteed to exist: it is created automatically after every `php artisan migrate` and by `php artisan app:ensure-super-admin` (both run on every deploy). If it is missing it is created; if it was deactivated or lost the Super Admin role, that is restored. An existing password is never reset, so a password changed in the CMS is kept.
+
+Keep `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `shared/.env` permanently, with `ADMIN_PASSWORD` as a bcrypt **hash** in single quotes (`app:check-deployment` fails on a plain password in production):
+
+```bash
+php -r 'echo password_hash("the-password", PASSWORD_BCRYPT, ["cost" => 12]), PHP_EOL;'
+```
+
+**First deploy only:** load the base content:
 
 ```bash
 cd /var/www/kaniz-ripa/current
 php artisan db:seed --force          # roles, permissions, countries, verified poster data (drafts), Super Admin
-# now delete ADMIN_PASSWORD (and ADMIN_EMAIL) from shared/.env and run: php artisan config:cache
 ```
 
 Seeding is idempotent and never publishes anything: poster companies stay unverified and portfolio items stay drafts.
@@ -224,7 +231,7 @@ Then sign in at `/admin`, upload an image, save a draft, and generate the compan
 8. **Queue:** *Site → Queue*: connection `database`, timeout 180, tries 2, processes 1.
 9. **Scheduler:** *Server → Scheduler*: `php /home/forge/YOUR-DOMAIN.com/current/artisan schedule:run`, every minute.
 10. **Chrome:** SSH in and run the Chrome install commands from step A1.
-11. **First deploy:** click *Deploy Now*. Then SSH in, run `php artisan db:seed --force`, remove `ADMIN_PASSWORD`/`ADMIN_EMAIL` from the environment, and run `php artisan app:check-deployment`.
+11. **First deploy:** click *Deploy Now*. Then SSH in, run `php artisan db:seed --force` and `php artisan app:check-deployment`. Keep `ADMIN_EMAIL` and a bcrypt-hashed `ADMIN_PASSWORD` in the Forge environment; the Super Admin is recreated on each deploy if missing.
 12. **Backups:** Forge's database backups (Server → Backups) can complement `spatie/laravel-backup`, but the app's own backups also include uploaded files. Keep both, with an off-site target.
 
 ---
@@ -242,7 +249,7 @@ See `deploy/.env.production.example` (every variable is commented). Security-rel
 | `SANCTUM_STATEFUL_DOMAINS` | `YOUR-DOMAIN.com` | Admin SPA cookie authentication |
 | `CSP_ENABLED` | `true` | Nonce-based Content-Security-Policy |
 | `LOG_LEVEL` | `warning` | Avoid logging request details |
-| `ADMIN_PASSWORD` | *(removed after first seed)* | No credentials left in the environment |
+| `ADMIN_PASSWORD` | bcrypt hash, in single quotes | Super Admin password, used only when the account is (re)created |
 
 ## Go-live checklist
 
