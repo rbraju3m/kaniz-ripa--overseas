@@ -1,0 +1,15 @@
+# Laravel uses LOG_CHANNEL=daily (rotation + retention via LOG_DAILY_DAYS).
+# This covers the Nginx site logs.
+#   sudo cp deploy/logrotate/kaniz-ripa /etc/logrotate.d/kaniz-ripa
+/var/log/nginx/kaniz-ripa.*.log {
+    daily
+    rotate 30
+    missingok
+    notifempty
+    compress
+    delaycompress
+    sharedscripts
+    postrotate
+        [ -s /run/nginx.pid ] && kill -USR1 `cat /run/nginx.pid`
+    endscript
+}

@@ -88,3 +88,18 @@ it('embeds the site payload so the client skips a request', function () {
         ->assertSee('"menus":{"header"', false)
         ->assertDontSee('[PLACEHOLDER]', false);
 });
+
+it('sends a nonce-based Content-Security-Policy when enabled', function () {
+    config(['app.csp_enabled' => true]);
+
+    $res = $this->get('/bn')->assertOk();
+    $csp = $res->headers->get('Content-Security-Policy');
+    preg_match("/'nonce-([^']+)'/", (string) $csp, $m);
+
+    expect($csp)->toContain("default-src 'self'")->toContain("object-src 'none'")->toContain('https://www.youtube-nocookie.com')
+        ->and($m[1] ?? null)->not->toBeNull();
+    $res->assertSee('nonce="'.$m[1].'">window.__KRO__', false);
+
+    // JSON API responses carry no CSP.
+    expect($this->getJson('/api/v1/countries')->headers->has('Content-Security-Policy'))->toBeFalse();
+});

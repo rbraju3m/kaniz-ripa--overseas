@@ -1,0 +1,3 @@
+# Laravel scheduler: backups (02:00), backup cleanup/monitoring, log & queue housekeeping.
+#   sudo cp deploy/cron/kaniz-ripa /etc/cron.d/kaniz-ripa && sudo chmod 644 /etc/cron.d/kaniz-ripa
+* * * * * kaniz cd /var/www/kaniz-ripa/current && php artisan schedule:run >> /dev/null 2>&1

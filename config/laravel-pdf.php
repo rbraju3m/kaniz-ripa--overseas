@@ -169,7 +169,8 @@ return [
 
         'custom_flags' => [],
 
-        'env_variables' => [],
+        // Chrome needs a writable HOME (crash handler, profile). Set it when the PHP user's home isn't writable (e.g. www-data).
+        'env_variables' => array_filter(['HOME' => env('LARAVEL_PDF_CHROME_HOME')]),
     ],
 
     /*

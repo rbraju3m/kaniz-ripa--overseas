@@ -42,6 +42,12 @@ return [
     'debug' => (bool) env('APP_DEBUG', false),
 
     /*
+    | Content-Security-Policy on HTML responses (nonce-based). On by default in
+    | production; keep off locally because the Vite dev server injects scripts.
+    */
+    'csp_enabled' => (bool) env('CSP_ENABLED', env('APP_ENV') === 'production'),
+
+    /*
     |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------

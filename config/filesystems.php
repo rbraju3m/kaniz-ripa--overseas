@@ -39,6 +39,14 @@ return [
             'report' => false,
         ],
 
+        // Backup archives (outside the webroot; never served).
+        'backups' => [
+            'driver' => 'local',
+            'root' => env('BACKUP_PATH', storage_path('backups')),
+            'serve' => false,
+            'throw' => true,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

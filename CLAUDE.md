@@ -24,6 +24,7 @@ Routing gotcha: public routes are declared under literal `/bn` and `/en` (not `/
 - PHP: `composer install && php artisan migrate:fresh --seed && php artisan test`
 - JS (Node 22+, installed via nvm: `. ~/.nvm/nvm.sh` in non-interactive shells): `npm install && npm run dev | build | test | typecheck | lint`
 - Local dev: `composer run dev` (serve + queue + vite). PDF generation is queued, so a queue worker must run.
+- Deployment check: `php artisan app:check-deployment` (exit 1 on critical problems). Deploy files live in `deploy/`; see `docs/DEPLOYMENT.md`. Production runs everything as the `kaniz` user, never `www-data`.
 
 ## Content rules (non-negotiable)
 

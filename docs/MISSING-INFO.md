@@ -41,3 +41,8 @@ Nothing below will be invented. Until the client supplies an item, the site uses
 | 20 | Whether to show Bismillah calligraphy on the site | Pending |
 | 21 | Approved Bangla and English copy for all pages | Missing |
 | 22 | Original poster image files saved to `docs/brand-assets/posters/` | Missing |
+| 23 | Production domain name (and DNS access) | Missing |
+| 24 | Hosting choice: own Ubuntu VPS or Laravel Forge (+ server provider) | Missing |
+| 25 | SMTP account for system emails (backup alerts, password resets) | Missing |
+| 26 | Off-site backup storage (S3-compatible bucket) and alert email address | Missing |
+| 27 | Named staff who need CMS accounts, and their roles (Admin / Editor / Viewer) | Missing |
