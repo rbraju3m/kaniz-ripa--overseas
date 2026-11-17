@@ -34,6 +34,8 @@ const en = {
         teamTitle: 'Our team', teamLead: 'Talk directly to the people who handle your recruitment.',
         statCountries: 'Countries served', statPartners: 'Partner companies', statProjects: 'Recruitment projects', statServices: 'Services',
     },
+    search: { open: 'Search the website', placeholder: 'Search services, projects, partners, team…', empty: 'Nothing found for', hint: 'Type to search', services: 'Services', projects: 'Projects', partners: 'Partners', team: 'Team', navigate: 'to navigate', select: 'to open', close: 'to close' },
+    theme: { dark: 'Dark mode', light: 'Light mode' },
     cta: { title: 'Planning to recruit workers from Bangladesh?', lead: 'Talk to our team in Banani, Dhaka. Call, message us on WhatsApp or send an enquiry and we will get back to you.' },
     contactFab: { open: 'Contact us', close: 'Close', title: 'Talk to our team', call: 'Call', whatsapp: 'WhatsApp', backToTop: 'Back to top' },
     pages: {
@@ -47,7 +49,7 @@ const en = {
         notFoundTitle: 'Page not found', notFoundText: 'The page you are looking for does not exist or is no longer available.',
         goHome: 'Go to homepage',
     },
-    portfolio: { more: 'More recruitment projects', moreIn: 'More projects in', company: 'Company', country: 'Country', industry: 'Industry', date: 'Project date', activities: 'Recruitment activities', gallery: 'Gallery', related: 'Projects with this partner' },
+    portfolio: { askTitle: 'Interested in this project?', askLead: 'Talk to our team about this recruitment or a similar one.', more: 'More recruitment projects', moreIn: 'More projects in', company: 'Company', country: 'Country', industry: 'Industry', date: 'Project date', activities: 'Recruitment activities', gallery: 'Gallery', related: 'Projects with this partner' },
     stories: { employer: 'Employer', watchVideo: 'Watch video', readStory: 'Read story' },
     gallery: { photos: 'Photos', videos: 'Videos', close: 'Close', prev: 'Previous image', next: 'Next image' },
     profile: { download: 'Download PDF', preview: 'Preview', updated: 'Updated', size: 'Size', language: 'Language' },

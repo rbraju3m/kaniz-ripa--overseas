@@ -38,7 +38,7 @@ export default function GalleryPage() {
                 )}
                 {isLoading ? <CardGridSkeleton count={6} /> : isError ? <ErrorState onRetry={() => refetch()} /> : items.length === 0 ? <EmptyState /> : (
                     <>
-                        <ul className="columns-2 gap-3 sm:columns-3 lg:columns-4 [&>li]:mb-3">
+                        <ul key={items.map((x) => x.id).join('-')} className="animate-page-in columns-2 gap-3 sm:columns-3 lg:columns-4 [&>li]:mb-3">
                             {items.map((item, i) => (
                                 <li key={item.id} className="break-inside-avoid">
                                     <button onClick={() => setIndex(i)} className="spotlight group relative block w-full overflow-hidden rounded-xl bg-navy-900 shadow-soft ring-1 ring-slate-200/60 transition duration-300 hover:-translate-y-1 hover:shadow-lift" aria-label={item.title ?? (item.type === 'video' ? t.gallery.videos : t.gallery.photos)}>

@@ -234,3 +234,50 @@
         scroll-behavior: auto !important;
     }
 }
+
+/* ---------------------------------------------------------------------------
+ * Dark theme for the public website (wrapper .site-dark, see lib/theme.tsx).
+ * Unlayered, so these remaps win over the light utilities they replace.
+ * Dark sections (hero, footer, CTA) already use navy backgrounds and stay as they are.
+ * ------------------------------------------------------------------------- */
+html.site-dark-boot, html.site-dark-boot body { background: #06142e; }
+.site-dark {
+    --d-bg: #06142e;
+    --d-bg-alt: #081c40;
+    --d-surface: #0d2350;
+    --d-surface-2: #13306a;
+    --d-text: #e8eef9;
+    --d-muted: #b2bfd6;
+    --d-faint: #8696b4;
+    --d-line: rgb(255 255 255 / 0.1);
+    background: var(--d-bg);
+    color: var(--d-muted);
+    color-scheme: dark;
+}
+.site-dark :is(h1, h2, h3, h4) { color: var(--d-text); }
+.site-dark :is(.bg-white, .bg-white\/95, .bg-white\/90) { background-color: var(--d-surface); }
+.site-dark :is(.bg-slate-50) { background-color: var(--d-bg-alt); }
+.site-dark :is(.bg-slate-100, .bg-slate-200) { background-color: var(--d-surface-2); }
+.site-dark :is(.bg-navy-50) { background-color: rgb(255 255 255 / 0.07); }
+.site-dark :is(.bg-brand-green-50) { background-color: rgb(34 160 82 / 0.12); }
+.site-dark :is(.bg-brand-green-100) { background-color: rgb(34 160 82 / 0.2); }
+.site-dark :is(.bg-gold-100, .bg-gold-100\/60) { background-color: rgb(233 196 106 / 0.12); }
+.site-dark .from-brand-green-50 { --tw-gradient-from: rgb(34 160 82 / 0.14); }
+.site-dark .to-white { --tw-gradient-to: var(--d-surface); }
+/* Page sections (components/ui/Section.tsx) sit on the page colour, cards on the surface colour. */
+.site-dark .tone-base { background-color: var(--d-bg); }
+.site-dark .tone-alt { background-color: var(--d-bg-alt); }
+.site-dark .tone-mint { background-color: #072a2a; }
+.site-dark :is(.text-navy-900, .text-navy-800, .text-navy-700) { color: var(--d-text); }
+.site-dark :is(.text-slate-700, .text-slate-600) { color: var(--d-muted); }
+.site-dark :is(.text-slate-500, .text-slate-400, .text-navy-400, .text-navy-300) { color: var(--d-faint); }
+.site-dark .text-brand-green-700, .site-dark .text-brand-green-800 { color: #4ade80; }
+.site-dark .text-gold-700 { color: #e9c46a; }
+.site-dark :is(.ring-slate-200, .ring-slate-200\/70, .ring-slate-200\/60, .ring-brand-green-100, .ring-brand-green-200, .ring-gold-100, .ring-navy-200, .ring-navy-100) { --tw-ring-color: var(--d-line); }
+.site-dark :is(.border-slate-100, .border-slate-200, .border-navy-200) { border-color: var(--d-line); }
+.site-dark .prose-content { color: var(--d-muted); }
+.site-dark .prose-content a { color: #93b4ff; }
+.site-dark :is(input, textarea, select) { color: var(--d-text); }
+.site-dark :is(input, textarea)::placeholder { color: var(--d-faint); }
+.site-dark .spotlight::before { background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgb(233 196 106 / 0.12), transparent 45%); }
+.site-dark .mask-fade-x { --tw-gradient-to: var(--d-bg); }

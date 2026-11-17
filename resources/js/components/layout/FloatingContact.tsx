@@ -31,7 +31,7 @@ export function FloatingContact() {
     if (!people.length && !office) return null;
 
     return (
-        <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
+        <div className="fixed bottom-6 right-6 z-40 hidden flex-col items-end gap-3 sm:flex">
             <div
                 id="quick-contact"
                 role="dialog"

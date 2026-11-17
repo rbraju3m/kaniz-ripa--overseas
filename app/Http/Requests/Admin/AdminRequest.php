@@ -59,7 +59,10 @@ abstract class AdminRequest extends FormRequest
         foreach ($translations as $locale => $fields) {
             foreach ($this->richTextFields() as $field) {
                 if (is_array($fields) && isset($fields[$field]) && is_string($fields[$field])) {
-                    $translations[$locale][$field] = clean($fields[$field]);
+                    // Plain text (e.g. one activity per line) has no markup to sanitise; keep its
+                    // line breaks instead of letting the purifier wrap it into a single paragraph.
+                    $value = $fields[$field];
+                    $translations[$locale][$field] = strip_tags($value) === $value ? $value : clean($value);
                 }
             }
         }

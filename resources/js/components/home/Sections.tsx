@@ -186,7 +186,7 @@ export function ServicesSection({ home }: { home: HomePayload }) {
         <Section tone="slate">
             <SectionHeading eyebrow={t.nav.services} title={t.home.servicesTitle} lead={t.home.servicesLead}
                 action={<ButtonLink to={path('services')} variant="secondary" size="sm">{t.common.viewAll} <ArrowRight className="size-4" /></ButtonLink>} />
-            <Reveal stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <Reveal stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-sm:-mx-4 max-sm:flex max-sm:snap-x max-sm:snap-mandatory max-sm:gap-4 max-sm:overflow-x-auto max-sm:px-4 max-sm:pb-3 max-sm:[scrollbar-width:none] max-sm:[&>*]:w-[82%] max-sm:[&>*]:shrink-0 max-sm:[&>*]:snap-start">
                 {home.services.map((s, i) => <ServiceCard key={s.id} service={s} index={i} />)}
             </Reveal>
         </Section>
@@ -243,7 +243,7 @@ export function PartnersSection({ home }: { home: HomePayload }) {
         <Section tone="mint">
             <SectionHeading eyebrow={t.nav.partners} title={t.home.partnersTitle} lead={t.home.partnersLead}
                 action={<ButtonLink to={path('partners')} variant="secondary" size="sm">{t.common.viewAll} <ArrowRight className="size-4" /></ButtonLink>} />
-            <Reveal stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <Reveal stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 max-sm:-mx-4 max-sm:flex max-sm:snap-x max-sm:snap-mandatory max-sm:gap-4 max-sm:overflow-x-auto max-sm:px-4 max-sm:pb-3 max-sm:[scrollbar-width:none] max-sm:[&>*]:w-[82%] max-sm:[&>*]:shrink-0 max-sm:[&>*]:snap-start">
                 {home.partners.map((p) => <PartnerCard key={p.id} partner={p} />)}
             </Reveal>
         </Section>
@@ -257,7 +257,7 @@ export function PortfolioSection({ home }: { home: HomePayload }) {
         <Section>
             <SectionHeading eyebrow={t.nav.portfolio} title={t.home.portfolioTitle} lead={t.home.portfolioLead}
                 action={<ButtonLink to={path('portfolio')} variant="secondary" size="sm">{t.common.viewAll} <ArrowRight className="size-4" /></ButtonLink>} />
-            <Reveal stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <Reveal stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-sm:-mx-4 max-sm:flex max-sm:snap-x max-sm:snap-mandatory max-sm:gap-4 max-sm:overflow-x-auto max-sm:px-4 max-sm:pb-3 max-sm:[scrollbar-width:none] max-sm:[&>*]:w-[82%] max-sm:[&>*]:shrink-0 max-sm:[&>*]:snap-start">
                 {home.portfolios.map((p) => <PortfolioCard key={p.id} item={p} />)}
             </Reveal>
         </Section>

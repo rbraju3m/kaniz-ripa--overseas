@@ -80,3 +80,22 @@ it('deletes a portfolio and logs activity', function () {
     $this->assertModelMissing($p);
     $this->assertDatabaseHas('activity_log', ['subject_type' => Portfolio::class, 'subject_id' => $p->id, 'event' => 'deleted']);
 });
+
+it('keeps one-activity-per-line plain text instead of wrapping it in a paragraph', function () {
+    actingAsRole();
+    $item = portfolio();
+
+    $this->putJson("/api/v1/admin/portfolios/{$item->id}", [
+        'status' => 'published',
+        'translations' => ['en' => [
+            'title' => 'Project', 'slug' => 'project-'.$item->id, 'activities' => "Drivers\nCleaners\n<b>Loaders</b>", 'is_reviewed' => true,
+        ]],
+    ])->assertOk();
+    expect($item->translations()->where('locale', 'en')->value('activities'))->toContain('<b>Loaders</b>');
+
+    $this->putJson("/api/v1/admin/portfolios/{$item->id}", [
+        'status' => 'published',
+        'translations' => ['en' => ['title' => 'Project', 'slug' => 'project-'.$item->id, 'activities' => "Drivers\nCleaners", 'is_reviewed' => true]],
+    ])->assertOk();
+    expect($item->translations()->where('locale', 'en')->value('activities'))->toBe("Drivers\nCleaners");
+});

@@ -6,6 +6,7 @@ import { StoryCard } from '@/components/cards/StoryCard';
 import { FilterPills } from '@/components/ui/Chip';
 import { Pagination } from '@/components/ui/Pagination';
 import { PageHeader, Section } from '@/components/ui/Section';
+import { Reveal } from '@/components/ui/Reveal';
 import { CardGridSkeleton, EmptyState, ErrorState } from '@/components/ui/States';
 
 export default function StoriesPage() {
@@ -33,7 +34,7 @@ export default function StoriesPage() {
                 ) : null}
                 {isLoading ? <CardGridSkeleton /> : isError ? <ErrorState onRetry={() => refetch()} /> : !data?.data.length ? <EmptyState /> : (
                     <>
-                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{data.data.map((s) => <StoryCard key={s.id} story={s} />)}</div>
+                        <Reveal stagger key={JSON.stringify(data.meta ?? {}) + (data.data[0]?.id ?? "")} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{data.data.map((s) => <StoryCard key={s.id} story={s} />)}</Reveal>
                         <Pagination page={data.meta.current_page} lastPage={data.meta.last_page} onChange={(n) => update({ page: n })} />
                     </>
                 )}

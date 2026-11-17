@@ -6,6 +6,8 @@ import type { Locale } from '@/lib/types';
 import { CtaBand } from '@/components/layout/CtaBand';
 import { FloatingContact } from '@/components/layout/FloatingContact';
 import { Footer } from '@/components/layout/Footer';
+import { MobileActionBar } from '@/components/layout/MobileActionBar';
+import { ThemeProvider } from '@/lib/theme';
 import { Header } from '@/components/layout/Header';
 
 function PageFallback() {
@@ -38,17 +40,25 @@ export default function PublicLayout({ locale }: { locale: Locale }) {
     return (
         <I18nProvider locale={locale}>
             <AlternatesProvider>
-                <Header />
-                <main id="main" tabIndex={-1} className="outline-none">
-                    {/* Soft fade between pages. */}
-                    <div key={pathname} className="animate-page-in">
-                        <Suspense fallback={<PageFallback />}><Outlet /></Suspense>
-                    </div>
-                </main>
-                {showCta && <CtaBand />}
-                <Footer />
-                <FloatingContact />
-                <ScrollRestoration />
+                <ThemeProvider>
+                    {(theme) => (
+                        <div className={theme === 'dark' ? 'site-dark min-h-screen' : 'min-h-screen'}>
+                            <Header />
+                            {/* Bottom padding on phones keeps the footer clear of the quick-action bar. */}
+                            <main id="main" tabIndex={-1} className="outline-none">
+                                {/* Soft fade between pages. */}
+                                <div key={pathname} className="animate-page-in">
+                                    <Suspense fallback={<PageFallback />}><Outlet /></Suspense>
+                                </div>
+                            </main>
+                            {showCta && <CtaBand />}
+                            <div className="bg-navy-950 pb-16 sm:pb-0"><Footer /></div>
+                            <FloatingContact />
+                            <MobileActionBar />
+                            <ScrollRestoration />
+                        </div>
+                    )}
+                </ThemeProvider>
             </AlternatesProvider>
         </I18nProvider>
     );

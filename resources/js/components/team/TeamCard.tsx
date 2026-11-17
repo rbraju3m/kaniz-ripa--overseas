@@ -49,7 +49,7 @@ export function TeamCard({ member }: { member: TeamMember }) {
 
 export function TeamGrid({ team }: { team: TeamMember[] }) {
     return (
-        <Reveal stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <Reveal stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 max-sm:-mx-4 max-sm:flex max-sm:snap-x max-sm:snap-mandatory max-sm:gap-4 max-sm:overflow-x-auto max-sm:px-4 max-sm:pb-3 max-sm:[scrollbar-width:none] max-sm:[&>*]:w-[82%] max-sm:[&>*]:shrink-0 max-sm:[&>*]:snap-start">
             {team.map((m) => <TeamCard key={m.id} member={m} />)}
         </Reveal>
     );

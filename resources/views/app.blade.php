@@ -47,7 +47,9 @@
         @endforeach
     @endif
     <link rel="icon" href="/favicon.ico">
-    <script nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">window.__KRO__ = {!! json_encode($bootstrap, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!};</script>
+    <script nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">window.__KRO__ = {!! json_encode($bootstrap, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!};
+        // Apply the saved dark theme before first paint (public site only).
+        try { if (!location.pathname.startsWith('/admin')) { var t = localStorage.getItem('kro-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); if (t === 'dark') document.documentElement.classList.add('site-dark-boot'); } } catch (e) {}</script>
     @viteReactRefresh
     @vite('resources/js/main.tsx')
 </head>

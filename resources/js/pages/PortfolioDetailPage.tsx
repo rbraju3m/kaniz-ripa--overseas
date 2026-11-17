@@ -1,13 +1,13 @@
-import { ArrowLeft, Briefcase, Calendar, Factory, Globe2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Briefcase, Calendar, Factory, Globe2, Mail, MessageCircle, Phone } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router';
-import { usePortfolio, usePortfolios } from '@/hooks/queries';
+import { usePortfolio, usePortfolios, useSite, useTeam } from '@/hooks/queries';
 import { usePublishAlternates } from '@/lib/alternates';
 import { isNotFound } from '@/lib/api';
 import { useI18n } from '@/lib/i18n';
 import { useDocumentMeta } from '@/lib/seo';
 import type { Portfolio } from '@/lib/types';
-import { formatDate, lines } from '@/lib/utils';
+import { formatDate, lines, toE164, whatsappLink } from '@/lib/utils';
 import { Lightbox } from '@/components/ui/Lightbox';
 import { ResponsiveImage } from '@/components/ui/ResponsiveImage';
 import { PortfolioCard } from '@/components/cards/PortfolioCard';
@@ -26,8 +26,17 @@ function Fact({ icon, label, children }: { icon: ReactNode; label: string; child
 }
 
 /** Rich text (HTML from CMS) or plain multiline text from poster drafts. */
+/** A single paragraph that still holds line breaks is a plain one-per-line list saved through the editor. */
+function asPlainLines(value: string): string | null {
+    const m = value.trim().match(/^<p>([\s\S]*)<\/p>$/i);
+    if (!m || !m[1].includes('\n') || /<[a-z]/i.test(m[1])) return null;
+    return new DOMParser().parseFromString(m[1], 'text/html').body.textContent ?? null;
+}
+
 function Activities({ value }: { value: string }) {
-    if (/<[a-z][\s\S]*>/i.test(value)) return <div className="prose-content" dangerouslySetInnerHTML={{ __html: value }} />;
+    const plain = asPlainLines(value);
+    if (plain) value = plain;
+    else if (/<[a-z][\s\S]*>/i.test(value)) return <div className="prose-content" dangerouslySetInnerHTML={{ __html: value }} />;
     return (
         <ul className="grid gap-3 sm:grid-cols-2">
             {lines(value).map((l) => <li key={l} className="flex gap-3 rounded-xl bg-brand-green-50 p-4 text-navy-900"><span className="mt-2 size-1.5 shrink-0 rounded-full bg-brand-green-600" />{l}</li>)}
@@ -64,7 +73,8 @@ export default function PortfolioDetailPage() {
                 {isLoading && <div className="space-y-3"><Skeleton className="aspect-[16/7] w-full" /><Skeleton className="h-4 w-4/5" /></div>}
                 {error && !isNotFound(error) && <ErrorState onRetry={() => refetch()} />}
                 {p && (
-                    <div className="mx-auto max-w-4xl">
+                    <div className="grid gap-10 lg:grid-cols-3">
+                    <div className="lg:col-span-2">
                         <FallbackNotice contentLocale={p.locale} />
                         {p.cover && <ResponsiveImage media={p.cover} eager sizes="(min-width:1024px) 896px, 100vw" className="mb-10 aspect-[16/8] w-full rounded-3xl shadow-lift" />}
                         {p.description && <div className="prose-content text-lg" dangerouslySetInnerHTML={{ __html: p.description }} />}
@@ -86,6 +96,8 @@ export default function PortfolioDetailPage() {
                                 </div>
                             </div>
                         )}
+                    </div>
+                    <ProjectAside project={p} />
                     </div>
                 )}
             </Section>
@@ -112,5 +124,36 @@ function RelatedProjects({ current }: { current: Portfolio }) {
                 {items.map((x) => <PortfolioCard key={x.id} item={x} />)}
             </Reveal>
         </Section>
+    );
+}
+
+/** Sticky side panel: key facts and quick ways to ask about this project. */
+function ProjectAside({ project }: { project: Portfolio }) {
+    const { t, path } = useI18n();
+    const { site } = useSite();
+    const { team } = useTeam();
+    const phone = site?.settings.contact?.phone;
+    const wa = team.find((m) => m.phone && m.whatsapp)?.phone;
+    return (
+        <aside className="lg:sticky lg:top-24 lg:self-start">
+            <div className="relative overflow-hidden rounded-[1.5rem] bg-navy-900 p-6 text-white shadow-lift">
+                <div aria-hidden className="absolute -right-12 -top-12 size-40 animate-float-slow rounded-full bg-gold-500/20 blur-2xl" />
+                <p className="relative text-4xl" aria-hidden>{project.country?.flag ?? '🌐'}</p>
+                <h2 className="relative mt-3 text-xl font-semibold text-white">{t.portfolio.askTitle}</h2>
+                <p className="relative mt-2 text-sm text-navy-200">{t.portfolio.askLead}</p>
+                <div className="relative mt-6 grid gap-2">
+                    {phone && <a href={`tel:${toE164(phone)}`} className="btn-shine inline-flex items-center justify-center gap-2 rounded-xl bg-gold-500 px-4 py-3 text-sm font-semibold text-navy-950 transition hover:bg-gold-300"><Phone className="size-4" /> {t.common.callUs}</a>}
+                    {wa && <a href={whatsappLink(wa)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-green-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-green-800"><MessageCircle className="size-4" /> {t.contactFab.whatsapp}</a>}
+                    <Link to={path('contact')} className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 px-4 py-3 text-sm font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/20"><Mail className="size-4" /> {t.home.ctaContact}</Link>
+                </div>
+            </div>
+            {project.company?.slug && (
+                <Link to={path(`partners/${project.company.slug}`)} className="spotlight group mt-4 flex items-center gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-lift">
+                    <span className="grid size-11 place-items-center rounded-xl bg-navy-50 font-display text-lg font-bold text-navy-800">{project.company.name.charAt(0)}</span>
+                    <span className="min-w-0 flex-1"><span className="block text-xs text-slate-500">{t.portfolio.company}</span><span className="block truncate font-semibold text-navy-900">{project.company.name}</span></span>
+                    <ArrowRight className="size-4 text-navy-300 transition group-hover:translate-x-1" />
+                </Link>
+            )}
+        </aside>
     );
 }

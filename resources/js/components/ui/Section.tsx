@@ -4,9 +4,9 @@ import { Reveal } from './Reveal';
 
 export function Section({ id, className, children, tone = 'white', reveal = true }: { id?: string; className?: string; children: ReactNode; tone?: 'white' | 'mint' | 'navy' | 'slate'; reveal?: boolean }) {
     const tones = {
-        white: 'bg-white',
-        mint: 'bg-brand-green-50',
-        slate: 'bg-slate-50',
+        white: 'bg-white tone-base',
+        mint: 'bg-brand-green-50 tone-mint',
+        slate: 'bg-slate-50 tone-alt',
         navy: 'bg-navy-900 text-navy-100',
     };
     return (

@@ -14,7 +14,7 @@ export function CtaBand() {
     const wa = team.find((m) => m.phone && m.whatsapp);
 
     return (
-        <section className="bg-white py-14 sm:py-20">
+        <section className="tone-base bg-white py-14 sm:py-20">
             <div className="container-page">
                 <Reveal className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-navy-900 via-navy-800 to-royal-700 px-6 py-12 text-white shadow-lift sm:px-12 lg:px-16">
                     <div aria-hidden className="absolute -right-24 -top-24 size-80 animate-float-slow rounded-full bg-gold-500/15 blur-3xl" />

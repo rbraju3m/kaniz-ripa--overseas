@@ -36,6 +36,8 @@ const bn: Messages = {
         teamTitle: 'আমাদের টিম', teamLead: 'আপনার নিয়োগ সংক্রান্ত বিষয়ে সরাসরি দায়িত্বপ্রাপ্তদের সাথে কথা বলুন।',
         statCountries: 'দেশে কার্যক্রম', statPartners: 'অংশীদার প্রতিষ্ঠান', statProjects: 'নিয়োগ প্রকল্প', statServices: 'সেবা',
     },
+    search: { open: 'ওয়েবসাইটে খুঁজুন', placeholder: 'সেবা, প্রকল্প, অংশীদার, টিম খুঁজুন…', empty: 'কিছু পাওয়া যায়নি:', hint: 'খুঁজতে লিখুন', services: 'সেবা', projects: 'প্রকল্প', partners: 'অংশীদার', team: 'টিম', navigate: 'সরাতে', select: 'খুলতে', close: 'বন্ধ করতে' },
+    theme: { dark: 'ডার্ক মোড', light: 'লাইট মোড' },
     cta: { title: 'বাংলাদেশ থেকে কর্মী নিয়োগের পরিকল্পনা করছেন?', lead: 'বনানী, ঢাকায় আমাদের টিমের সাথে কথা বলুন। কল করুন, হোয়াটসঅ্যাপে বার্তা পাঠান অথবা অনুসন্ধান পাঠান, আমরা যোগাযোগ করব।' },
     contactFab: { open: 'যোগাযোগ করুন', close: 'বন্ধ করুন', title: 'আমাদের টিমের সাথে কথা বলুন', call: 'কল', whatsapp: 'হোয়াটসঅ্যাপ', backToTop: 'উপরে যান' },
     pages: {
@@ -49,7 +51,7 @@ const bn: Messages = {
         notFoundTitle: 'পৃষ্ঠাটি পাওয়া যায়নি', notFoundText: 'আপনি যে পৃষ্ঠাটি খুঁজছেন সেটি নেই অথবা আর পাওয়া যাচ্ছে না।',
         goHome: 'হোমপেজে যান',
     },
-    portfolio: { more: 'আরও নিয়োগ প্রকল্প', moreIn: 'আরও প্রকল্প:', company: 'প্রতিষ্ঠান', country: 'দেশ', industry: 'শিল্পখাত', date: 'প্রকল্পের তারিখ', activities: 'নিয়োগ কার্যক্রম', gallery: 'গ্যালারি', related: 'এই অংশীদারের প্রকল্পসমূহ' },
+    portfolio: { askTitle: 'এই প্রকল্পে আগ্রহী?', askLead: 'এই বা এ ধরনের নিয়োগ নিয়ে আমাদের টিমের সাথে কথা বলুন।', more: 'আরও নিয়োগ প্রকল্প', moreIn: 'আরও প্রকল্প:', company: 'প্রতিষ্ঠান', country: 'দেশ', industry: 'শিল্পখাত', date: 'প্রকল্পের তারিখ', activities: 'নিয়োগ কার্যক্রম', gallery: 'গ্যালারি', related: 'এই অংশীদারের প্রকল্পসমূহ' },
     stories: { employer: 'নিয়োগকর্তা', watchVideo: 'ভিডিও দেখুন', readStory: 'গল্পটি পড়ুন' },
     gallery: { photos: 'ছবি', videos: 'ভিডিও', close: 'বন্ধ করুন', prev: 'আগের ছবি', next: 'পরের ছবি' },
     profile: { download: 'পিডিএফ ডাউনলোড', preview: 'প্রিভিউ', updated: 'হালনাগাদ', size: 'আকার', language: 'ভাষা' },

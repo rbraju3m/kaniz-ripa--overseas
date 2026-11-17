@@ -25,7 +25,7 @@ export function Logo({ dark = false, className }: { dark?: boolean; className?: 
                 </span>
             )}
             <span className="flex flex-col leading-none">
-                <span className={cn('font-display text-[15px] font-extrabold tracking-[0.14em]', dark ? 'text-white' : 'text-navy-900')}>KANIZ RIPA</span>
+                <span className={cn('whitespace-nowrap font-display text-[15px] font-extrabold tracking-[0.14em]', dark ? 'text-white' : 'text-navy-900')}>KANIZ RIPA</span>
                 <span className={cn('mt-1 font-display text-[11px] font-semibold tracking-[0.32em]', dark ? 'text-gold-300' : 'text-gold-600')}>OVERSEAS</span>
             </span>
         </Link>
