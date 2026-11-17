@@ -13,10 +13,12 @@ Single Laravel 13 project (do **not** split into separate backend/frontend proje
 
 Read `docs/ARCHITECTURE.md` and `docs/DATABASE.md` before structural changes.
 
+Frontend conventions (`resources/js`): pages in `pages/` (lazy-loaded in `app/router.tsx`), data hooks in `hooks/queries.ts` (always keyed by locale), UI strings in `locales/{en,bn}.ts` (keys must match; enforced by a test), design tokens in `resources/css/app.css` (`@theme`). Never letter-space or uppercase Bangla text. Sections with no published data must render nothing, not placeholder content.
+
 ## Commands
 
 - PHP: `composer install && php artisan migrate:fresh --seed && php artisan test`
-- JS (requires Node 22): `npm install && npm run dev | build | test | typecheck | lint`
+- JS (Node 22+, installed via nvm: `. ~/.nvm/nvm.sh` in non-interactive shells): `npm install && npm run dev | build | test | typecheck | lint`
 - Local dev: `composer run dev` (serve + queue + vite)
 
 ## Content rules (non-negotiable)

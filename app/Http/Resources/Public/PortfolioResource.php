@@ -18,6 +18,7 @@ class PortfolioResource extends JsonResource
             'id' => $this->id,
             'locale' => $t?->locale,
             'slug' => $t?->slug,
+            'slugs' => $this->when($request->routeIs('*.show'), fn () => $this->slugs()),
             'title' => $t?->title,
             'summary' => $t?->summary,
             'description' => $this->when($detail, $t?->description),
@@ -40,5 +41,11 @@ class PortfolioResource extends JsonResource
                 'media' => MediaResource::make($img->media),
             ])),
         ];
+    }
+
+    /** Reviewed slug per locale (detail views only) so the UI can switch language. */
+    private function slugs(): array
+    {
+        return $this->translations->where('is_reviewed', true)->pluck('slug', 'locale')->all();
     }
 }

@@ -18,6 +18,7 @@ class SuccessStoryResource extends JsonResource
             'id' => $this->id,
             'locale' => $t?->locale,
             'slug' => $t?->slug,
+            'slugs' => $this->when($request->routeIs('*.show'), fn () => $this->slugs()),
             'title' => $t?->title,
             'display_name' => $t?->display_name,
             'story' => $this->when($detail, $t?->story),
@@ -34,5 +35,11 @@ class SuccessStoryResource extends JsonResource
                 'media' => MediaResource::make($img->media),
             ])),
         ];
+    }
+
+    /** Reviewed slug per locale (detail views only) so the UI can switch language. */
+    private function slugs(): array
+    {
+        return $this->translations->where('is_reviewed', true)->pluck('slug', 'locale')->all();
     }
 }

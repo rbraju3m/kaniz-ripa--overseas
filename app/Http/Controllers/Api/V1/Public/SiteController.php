@@ -6,6 +6,7 @@ use App\Http\Resources\Public\CountryResource;
 use App\Http\Resources\Public\IndustryResource;
 use App\Models\Country;
 use App\Models\Industry;
+use App\Models\Media;
 use App\Models\Menu;
 use App\Services\SettingsService;
 use Illuminate\Http\JsonResponse;
@@ -21,6 +22,7 @@ class SiteController extends PublicController
         return response()->json([
             'data' => [
                 'locale' => app()->getLocale(),
+                'logo_url' => ($id = $settings->get('logo_media_id')) ? Media::query()->find($id)?->url('sm') : null,
                 'settings' => $settings->publicPayload(),
                 'menus' => $menus,
             ],

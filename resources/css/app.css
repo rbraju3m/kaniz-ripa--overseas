@@ -1,9 +1,142 @@
+/* Self-hosted fonts (woff2, unicode-range subsets) */
+@import '@fontsource/hind-siliguri/bengali-400.css';
+@import '@fontsource/hind-siliguri/bengali-500.css';
+@import '@fontsource/hind-siliguri/bengali-600.css';
+@import '@fontsource/hind-siliguri/bengali-700.css';
+@import '@fontsource-variable/inter/wght.css';
+@import '@fontsource-variable/plus-jakarta-sans/wght.css';
+
 @import 'tailwindcss';
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
+@source '../js';
+@source '../views';
 
+/*
+ * Design tokens — derived from the company logo and posters:
+ * navy (primary), royal (logo ring), green (action), mint (soft surfaces),
+ * gold (wordmark accent), orange (airplane micro-accent).
+ */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Inter Variable', 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Plus Jakarta Sans Variable', 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif;
+    --font-bangla: 'Hind Siliguri', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+    --color-navy-50: #f1f5fb;
+    --color-navy-100: #dfe7f4;
+    --color-navy-200: #bccbe6;
+    --color-navy-300: #8ea5d0;
+    --color-navy-400: #5b78b2;
+    --color-navy-500: #365493;
+    --color-navy-600: #233f78;
+    --color-navy-700: #173263;
+    --color-navy-800: #0f2a59;
+    --color-navy-900: #0b2a5b;
+    --color-navy-950: #071a3a;
+
+    --color-royal-500: #2a4fc4;
+    --color-royal-600: #1d3fa8;
+    --color-royal-700: #183488;
+
+    --color-brand-green-50: #eef8f2;
+    --color-brand-green-100: #ddf3e6;
+    --color-brand-green-200: #b9e5cb;
+    --color-brand-green-500: #22a052;
+    --color-brand-green-600: #188a44;
+    --color-brand-green-700: #15803d;
+    --color-brand-green-800: #12632f;
+
+    --color-gold-100: #f8ecd4;
+    --color-gold-300: #e9c46a;
+    --color-gold-500: #c08a2a;
+    --color-gold-600: #a8741a;
+    --color-gold-700: #865c14;
+
+    --color-plane-500: #e8742b;
+
+    --radius-card: 1rem;
+    --shadow-soft: 0 1px 2px rgb(11 42 91 / 0.04), 0 8px 24px -8px rgb(11 42 91 / 0.12);
+    --shadow-lift: 0 2px 4px rgb(11 42 91 / 0.06), 0 20px 40px -12px rgb(11 42 91 / 0.22);
+
+    --animate-fade-up: fade-up 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+
+    @keyframes fade-up {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+}
+
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-white font-sans text-slate-700;
+        text-rendering: optimizeLegibility;
+    }
+
+    h1, h2, h3, h4 {
+        @apply font-display text-navy-900;
+        text-wrap: balance;
+    }
+
+    /* Bangla: dedicated font, looser leading, never letter-spaced or uppercased. */
+    :lang(bn) body,
+    :lang(bn) h1, :lang(bn) h2, :lang(bn) h3, :lang(bn) h4 {
+        font-family: var(--font-bangla);
+    }
+    :lang(bn) body { line-height: 1.8; }
+    :lang(bn) h1, :lang(bn) h2, :lang(bn) h3 { line-height: 1.35; }
+
+    :focus-visible {
+        @apply outline-2 outline-offset-2 outline-royal-600;
+    }
+
+    ::selection {
+        @apply bg-gold-300/60 text-navy-950;
+    }
+}
+
+@layer components {
+    .tracking-eyebrow {
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+    }
+    /* Letter-spacing breaks Bangla conjuncts. */
+    :lang(bn) .tracking-eyebrow {
+        letter-spacing: 0;
+        text-transform: none;
+        font-size: 0.875rem;
+    }
+
+    /* Rich text from the CMS (already sanitised server-side). */
+    .prose-content {
+        @apply text-base text-slate-700;
+    }
+    .prose-content > * + * { margin-top: 1em; }
+    .prose-content h2 { @apply mt-8 text-2xl font-semibold; }
+    .prose-content h3 { @apply mt-6 text-xl font-semibold; }
+    .prose-content a { @apply font-medium text-royal-600 underline underline-offset-2; }
+    .prose-content ul { @apply list-disc pl-6; }
+    .prose-content ol { @apply list-decimal pl-6; }
+    .prose-content blockquote { @apply border-l-4 border-gold-500 pl-4 italic text-slate-600; }
+}
+
+@utility container-page {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 80rem;
+    padding-inline: 1rem;
+    @media (width >= 40rem) { padding-inline: 1.5rem; }
+    @media (width >= 64rem) { padding-inline: 2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }

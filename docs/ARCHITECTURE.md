@@ -74,7 +74,12 @@ lib/            api client (axios + XSRF), i18n, seo helpers, formatters
 locales/        en.json, bn.json (UI strings only; CMS content comes localized from API)
 ```
 
-Libraries: React Router, TanStack Query, React Hook Form + Zod, Lucide icons, Tailwind CSS.
+Libraries: React 19, React Router 8, TanStack Query 5, React Hook Form + Zod 4, Lucide icons, Tailwind CSS 4 (CSS-first `@theme` tokens). Fonts are self-hosted via Fontsource (Hind Siliguri, Inter, Plus Jakarta Sans). Tests use Vitest + Testing Library.
+
+- `SpaController` renders `resources/views/app.blade.php` with SEO metadata from `SeoService` and responds 404 for unknown sections and unpublished slugs.
+- `/sitemap.xml` lists only published, reviewed URLs with hreflang alternates. `/robots.txt` blocks everything outside production.
+- Detail API responses include `slugs` per reviewed locale, so the language switcher keeps visitors on the same item.
+- The homepage hero map is drawn from served countries in the database (`RouteMap`), with no stock imagery.
 
 ## Content and publishing rules
 

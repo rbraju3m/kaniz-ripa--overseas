@@ -7,12 +7,22 @@ use Illuminate\Support\Facades\Cache;
 
 class SettingsService
 {
-    private const CACHE_KEY = 'settings.all';
+    private const CACHE_KEY = 'settings.all.v2';
 
-    /** @return \Illuminate\Support\Collection<string, Setting> */
+    /** @var \Illuminate\Support\Collection<string, Setting>|null */
+    private $memo = null;
+
+    /**
+     * Plain arrays are cached (Laravel restricts which classes may be unserialised
+     * from the cache), then hydrated back into models once per request.
+     *
+     * @return \Illuminate\Support\Collection<string, Setting>
+     */
     public function all()
     {
-        return Cache::rememberForever(self::CACHE_KEY, fn () => Setting::query()->get()->keyBy('key'));
+        return $this->memo ??= Setting::hydrate(
+            Cache::rememberForever(self::CACHE_KEY, fn () => Setting::query()->get()->map->getAttributes()->all())
+        )->keyBy('key');
     }
 
     public function get(string $key, mixed $default = null, ?string $locale = null): mixed
@@ -34,6 +44,7 @@ class SettingsService
 
     public function flush(): void
     {
+        $this->memo = null;
         Cache::forget(self::CACHE_KEY);
     }
 }

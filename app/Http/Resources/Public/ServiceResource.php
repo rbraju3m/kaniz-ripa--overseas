@@ -16,6 +16,7 @@ class ServiceResource extends JsonResource
             'id' => $this->id,
             'locale' => $t?->locale,
             'slug' => $t?->slug,
+            'slugs' => $this->when($request->routeIs('*.show'), fn () => $this->slugs()),
             'title' => $t?->title,
             'summary' => $t?->summary,
             'body' => $this->when($request->routeIs('*.show'), $t?->body),
@@ -23,5 +24,11 @@ class ServiceResource extends JsonResource
             'is_featured' => $this->is_featured,
             'image' => MediaResource::make($this->whenLoaded('image')),
         ];
+    }
+
+    /** Reviewed slug per locale (detail views only) so the UI can switch language. */
+    private function slugs(): array
+    {
+        return $this->translations->where('is_reviewed', true)->pluck('slug', 'locale')->all();
     }
 }
