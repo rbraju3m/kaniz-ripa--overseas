@@ -13,7 +13,7 @@ Single Laravel 13 project (do **not** split into separate backend/frontend proje
 
 Read `docs/ARCHITECTURE.md` and `docs/DATABASE.md` before structural changes.
 
-Frontend conventions (`resources/js`): pages in `pages/` (lazy-loaded in `app/router.tsx`), data hooks in `hooks/queries.ts` (always keyed by locale), UI strings in `locales/{en,bn}.ts` (keys must match; enforced by a test), design tokens in `resources/css/app.css` (`@theme`). Never letter-space or uppercase Bangla text. Sections with no published data must render nothing, not placeholder content.
+Frontend conventions (`resources/js`): pages in `pages/` (lazy-loaded in `app/router.tsx`), data hooks in `hooks/queries.ts` (always keyed by locale), UI strings in `locales/{en,bn}.ts` (keys must match; enforced by a test), design tokens in `resources/css/app.css` (`@theme`). Never letter-space or uppercase Bangla text. Sections with no published data must render nothing, not placeholder content. `Section` fades in on scroll by default; wrap card grids in `<Reveal stagger>` (components/ui/Reveal.tsx). Motion must respect `prefers-reduced-motion`. Home stats are real counts from the API, never typed-in numbers.
 
 Admin CMS (`resources/js/admin`, served at `/admin`): standard content modules are config-driven. Add or change fields in `admin/resources/configs.tsx` (`ResourceConfig`); `ResourceList`/`ResourceForm` and `lib/formModel.ts` handle loading, payloads, 422 errors, translations and publish rules. Special screens (media, company profile, messages, menus, SEO, settings, users, roles, activity) live in `admin/pages/`. UI permission checks (`useCan`) mirror the API's `module.action` permissions, but the API is the authority.
 
@@ -34,3 +34,7 @@ Routing gotcha: public routes are declared under literal `/bn` and `/en` (not `/
 - A translation is public only when `is_reviewed = true`.
 - Success stories need `consent_confirmed_at` before publishing.
 - Unpublished files live on the private disk and are streamed via controllers.
+
+## Company profile PDF
+
+The website shows the download (header/footer links, hero button, home section) only when a PDF exists for the active source (`CompanyProfile::isAvailable()`, exposed as `company_profile_available`). Source "generated" builds missing PDFs immediately and rebuilds them ~60 s after any published content change (`RegenerateCompanyProfile`, debounced, see `config/company_profile.php`; disabled in tests via `PROFILE_AUTO_REGENERATE=false`). New content models that appear in the PDF must be added to `AppServiceProvider::PROFILE_CONTENT_MODELS`.

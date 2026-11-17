@@ -30,7 +30,10 @@ const en = {
         profileTitle: 'Download our company profile', profileLead: 'A concise overview of our company, services and recruitment activities.',
         profileUnavailable: 'Our company profile is being prepared. Contact us and we will share it with you.',
         contactTitle: 'Visit or call our office',
+        teamTitle: 'Our team', teamLead: 'Talk directly to the people who handle your recruitment.',
+        statCountries: 'Countries served', statPartners: 'Partner companies', statProjects: 'Recruitment projects', statServices: 'Services',
     },
+    contactFab: { open: 'Contact us', close: 'Close', title: 'Talk to our team', call: 'Call', whatsapp: 'WhatsApp', backToTop: 'Back to top' },
     pages: {
         aboutTitle: 'About us', servicesTitle: 'Our services', portfolioTitle: 'Our portfolio',
         portfolioLead: 'Recruitment projects we have coordinated with employers abroad.',

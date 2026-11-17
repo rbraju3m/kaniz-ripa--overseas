@@ -5,6 +5,7 @@ export const adminApi = {
     get: <T,>(url: string, params?: Record<string, unknown>) => api.get<T>(`/admin${url}`, { params }).then((r) => r.data),
     post: <T,>(url: string, body?: unknown) => api.post<T>(`/admin${url}`, body).then((r) => r.data),
     put: <T,>(url: string, body?: unknown) => api.put<T>(`/admin${url}`, body).then((r) => r.data),
+    patch: <T,>(url: string, body?: unknown) => api.patch<T>(`/admin${url}`, body).then((r) => r.data),
     delete: (url: string) => api.delete(`/admin${url}`).then((r) => r.data),
     upload: <T,>(url: string, form: FormData) => api.post<T>(`/admin${url}`, form, { headers: { 'Content-Type': 'multipart/form-data' } }).then((r) => r.data),
 };

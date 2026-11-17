@@ -105,8 +105,8 @@ export function Badge({ tone = 'gray', children }: { tone?: keyof typeof badgeTo
 }
 
 export function StatusBadge({ status }: { status?: string | null }) {
-    const tone = status === 'published' ? 'green' : status === 'archived' ? 'gray' : 'amber';
-    return <Badge tone={tone}>{status ?? 'draft'}</Badge>;
+    const published = status === 'published';
+    return <Badge tone={published ? 'green' : 'amber'}>{published ? 'Published' : 'Unpublished'}</Badge>;
 }
 
 /** Shows which locales have a reviewed (publicly visible) translation. */

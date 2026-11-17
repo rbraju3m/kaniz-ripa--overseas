@@ -69,3 +69,25 @@ it('blocks deactivated users even with a session', function () {
 
     $this->getJson('/api/v1/admin/me')->assertForbidden();
 });
+
+it('publishes and unpublishes from the list with the quick status switch', function () {
+    $item = portfolio(['status' => 'draft']);
+    actingAsRole('admin');
+
+    $this->patchJson("/api/v1/admin/portfolios/{$item->id}/status", ['status' => 'published'])
+        ->assertOk()->assertJsonPath('data.status', 'published');
+    $this->patchJson("/api/v1/admin/portfolios/{$item->id}/status", ['status' => 'draft'])
+        ->assertOk()->assertJsonPath('data.status', 'draft');
+    $this->patchJson("/api/v1/admin/portfolios/{$item->id}/status", ['status' => 'archived'])->assertUnprocessable();
+});
+
+it('requires the publish permission for the quick status switch', function () {
+    $item = portfolio(['status' => 'draft']);
+    actingAsRole('editor');
+    $this->patchJson("/api/v1/admin/portfolios/{$item->id}/status", ['status' => 'published'])->assertForbidden();
+
+    actingAsRole('viewer');
+    $this->patchJson("/api/v1/admin/portfolios/{$item->id}/status", ['status' => 'published'])->assertForbidden();
+
+    expect($item->fresh()->status->value)->toBe('draft');
+});

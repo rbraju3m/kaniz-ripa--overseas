@@ -7,11 +7,11 @@ type Size = 'sm' | 'md' | 'lg';
 
 const base = 'inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-60';
 const variants: Record<Variant, string> = {
-    primary: 'bg-brand-green-700 text-white shadow-soft hover:bg-brand-green-800 hover:shadow-lift focus-visible:outline-brand-green-700',
-    secondary: 'bg-white text-navy-900 ring-1 ring-navy-200 hover:ring-navy-400 hover:bg-navy-50',
+    primary: 'btn-shine bg-brand-green-700 text-white shadow-soft hover:-translate-y-0.5 hover:bg-brand-green-800 hover:shadow-lift focus-visible:outline-brand-green-700',
+    secondary: 'bg-white text-navy-900 ring-1 ring-navy-200 hover:-translate-y-0.5 hover:ring-navy-400 hover:bg-navy-50',
     ghost: 'text-navy-800 hover:bg-navy-50',
     light: 'bg-white/10 text-white ring-1 ring-white/25 backdrop-blur hover:bg-white/20',
-    gold: 'bg-gold-500 text-navy-950 hover:bg-gold-300 shadow-soft',
+    gold: 'btn-shine bg-gold-500 text-navy-950 shadow-soft hover:-translate-y-0.5 hover:bg-gold-300 hover:shadow-lift',
 };
 const sizes: Record<Size, string> = { sm: 'h-9 px-4 text-sm', md: 'h-11 px-5 text-sm', lg: 'h-12 px-6 text-base' };
 

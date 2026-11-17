@@ -197,19 +197,57 @@ export const galleryItemsConfig: ResourceConfig = {
     titleOf: (r) => (r.title as { en?: string } | null)?.en || `Gallery item #${r.id}`,
 };
 
+/** "AT" → "Austria": shown next to ISO codes so a wrong code is easy to spot. */
+const regionName = (iso: unknown) => {
+    try { return new Intl.DisplayNames(['en'], { type: 'region' }).of(String(iso).toUpperCase()) ?? ''; } catch { return ''; }
+};
+const ISO_HELP = <>Two-letter ISO code, e.g. SA (Saudi Arabia), MY (Malaysia), AT (Austria), AU (Australia). It sets the flag and the position on the home page map. <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements" target="_blank" rel="noopener" className="underline">List of codes</a></>;
+
 export const countriesConfig: ResourceConfig = {
     key: 'countries', endpoint: '/countries', permission: 'countries', singular: 'Country', plural: 'Countries',
-    description: 'Countries marked as served appear on the website.',
-    translatable: true,
+    description: 'Countries switched to "Show on website" appear on the home page map, in "Countries we serve" and in the company profile.',
+    translatable: true, reviewedByDefault: true,
     fields: [
-        { name: 'iso2', label: 'ISO code', type: 'text', required: true, help: 'Two letters, e.g. SA, MY, VN.' },
-        { name: 'is_served', label: 'We serve this country', type: 'switch', description: 'Shown in "Countries we serve".' },
+        { name: 'iso2', label: 'ISO code', type: 'text', required: true, help: ISO_HELP },
+        { name: 'is_served', label: 'Show on website', type: 'switch', description: 'Home page map ("Recruitment activities in") and "Countries we serve".' },
         sortField,
     ],
     translationFields: [{ name: 'name', label: 'Name', type: 'text', required: true }],
-    columns: [{ label: 'Country', render: (r) => recordTitle(r, 'name') }, { label: 'Code', render: (r) => String(r.iso2) }, reviewCol, { label: 'Served', render: (r) => (r.is_served ? <Badge tone="green">Served</Badge> : <Badge>—</Badge>) }],
-    defaults: { is_served: false, sort: 0 },
+    columns: [
+        { label: 'Country', render: (r) => recordTitle(r, 'name') },
+        { label: 'Code', render: (r) => { const n = regionName(r.iso2); return <span><span className="font-mono">{String(r.iso2)}</span>{n && <span className="ml-2 text-xs text-slate-500">= {n}</span>}</span>; } },
+        reviewCol,
+        { label: 'On website', render: (r) => (r.is_served ? <Badge tone="green">Shown</Badge> : <Badge>Hidden</Badge>) },
+    ],
+    defaults: { is_served: true, sort: 0 },
     titleOf: (r) => recordTitle(r, 'name'),
 };
 
-export const RESOURCES = [pagesConfig, servicesConfig, portfoliosConfig, companiesConfig, storiesConfig, galleryItemsConfig, galleryCategoriesConfig, countriesConfig];
+export const teamConfig: ResourceConfig = {
+    key: 'team-members', endpoint: '/team-members', permission: 'team', singular: 'Team member', plural: 'Team members',
+    description: 'People shown in "Our Team" on the home and About pages, and in the company profile PDF.',
+    publishable: true, translatable: true, reviewedByDefault: true,
+    fields: [
+        { name: 'photo_media_id', label: 'Photo', type: 'media', relation: 'photo', folder: 'team', aspect: 'aspect-square', placement: 'side', help: 'Square photos look best. Without a photo the initial is shown.' },
+        { name: 'phone', label: 'Mobile number', type: 'text', placement: 'side', help: 'e.g. 01732803369' },
+        { name: 'show_phone', label: 'Show number on website', type: 'switch', placement: 'side' },
+        { name: 'whatsapp', label: 'Number is on WhatsApp', type: 'switch', placement: 'side', description: 'Shows a WhatsApp button.' },
+        { ...sortField, placement: 'side' },
+    ],
+    translationFields: [
+        { name: 'name', label: 'Name', type: 'text', required: true },
+        { name: 'role', label: 'Designation', type: 'text', help: 'e.g. Managing Director' },
+        { name: 'bio', label: 'Short bio (optional)', type: 'textarea' },
+    ],
+    columns: [
+        { label: '', render: (r) => thumb(r, 'photo'), className: 'w-14' },
+        { label: 'Name', render: (r) => recordTitle(r, 'name') },
+        { label: 'Designation', render: (r) => String((r.translations as Record<string, { role?: string }> | undefined)?.en?.role ?? '—') },
+        { label: 'Mobile', render: (r) => <span className="font-mono text-xs">{String(r.phone ?? '—')}</span> },
+        reviewCol, statusCol,
+    ],
+    defaults: { show_phone: true, whatsapp: false, sort: 0 },
+    titleOf: (r) => recordTitle(r, 'name'),
+};
+
+export const RESOURCES = [pagesConfig, teamConfig, servicesConfig, portfoliosConfig, companiesConfig, storiesConfig, galleryItemsConfig, galleryCategoriesConfig, countriesConfig];

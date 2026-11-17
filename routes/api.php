@@ -23,6 +23,7 @@ Route::prefix('v1')->name('api.')->group(function () {
         Route::get('industries', [Public\SiteController::class, 'industries'])->name('industries');
         Route::get('pages/{key}', [Public\PageController::class, 'show'])->where('key', '[a-z_]+')->name('pages.show');
 
+        Route::get('team', [Public\TeamController::class, 'index'])->name('team.index');
         Route::get('services', [Public\ServiceController::class, 'index'])->name('services.index');
         Route::get('services/{slug}', [Public\ServiceController::class, 'show'])->name('services.show');
         Route::get('portfolios', [Public\PortfolioController::class, 'index'])->name('portfolios.index');
@@ -62,6 +63,7 @@ Route::prefix('v1')->name('api.')->group(function () {
                 'gallery-categories' => [Admin\GalleryCategoryController::class, 'gallery'],
                 'gallery-items' => [Admin\GalleryMediaController::class, 'gallery'],
                 'countries' => [Admin\CountryController::class, 'countries'],
+                'team-members' => [Admin\TeamMemberController::class, 'team'],
             ];
 
             foreach ($crud as $uri => [$controller, $module]) {
@@ -69,6 +71,7 @@ Route::prefix('v1')->name('api.')->group(function () {
                 Route::post($uri, [$controller, 'store'])->middleware("permission:{$module}.create")->name("{$uri}.store");
                 Route::get("{$uri}/{id}", [$controller, 'show'])->whereNumber('id')->middleware("permission:{$module}.view")->name("{$uri}.show");
                 Route::put("{$uri}/{id}", [$controller, 'update'])->whereNumber('id')->middleware("permission:{$module}.update")->name("{$uri}.update");
+                Route::patch("{$uri}/{id}/status", [$controller, 'status'])->whereNumber('id')->middleware("permission:{$module}.update")->name("{$uri}.status");
                 Route::delete("{$uri}/{id}", [$controller, 'destroy'])->whereNumber('id')->middleware("permission:{$module}.delete")->name("{$uri}.destroy");
             }
 

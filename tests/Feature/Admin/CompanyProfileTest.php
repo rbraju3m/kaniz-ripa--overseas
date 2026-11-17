@@ -1,9 +1,11 @@
 <?php
 
 use App\Jobs\GenerateCompanyProfilePdf;
+use App\Jobs\RegenerateCompanyProfile;
 use App\Models\CompanyProfile;
 use App\Models\CompanyProfileVersion;
 use App\Services\ProfilePdfService;
+use Database\Seeders\SettingsSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -11,7 +13,7 @@ use Spatie\LaravelPdf\Facades\Pdf;
 
 beforeEach(function () {
     Storage::fake('local');
-    $this->seed(\Database\Seeders\SettingsSeeder::class);
+    $this->seed(SettingsSeeder::class);
 });
 
 function pdfUpload(string $name = 'profile.pdf'): UploadedFile
@@ -42,17 +44,31 @@ it('rejects non-PDF uploads even with a .pdf name', function () {
     expect(CompanyProfileVersion::query()->count())->toBe(0);
 });
 
-it('cannot publish without a current version for the active source', function () {
+it('offers the download as soon as a PDF exists, unless hidden', function () {
     actingAsRole();
+    $this->putJson('/api/v1/admin/company-profile', ['active_source' => 'uploaded'])->assertOk();
 
-    $this->putJson('/api/v1/admin/company-profile', ['status' => 'published', 'active_source' => 'uploaded'])->assertStatus(422);
+    // No PDF yet: nothing to download, and the website hides every profile link.
+    $this->getJson('/api/v1/company-profile?locale=en')->assertNotFound();
+    $this->getJson('/api/v1/site?locale=en')->assertJsonPath('data.company_profile_available', false);
+
+    $this->postJson('/api/v1/admin/company-profile/upload', ['file' => pdfUpload(), 'locale' => 'en'])->assertCreated();
+
+    $this->getJson('/api/v1/company-profile?locale=en')->assertOk();
+    $this->getJson('/api/v1/site?locale=en')->assertJsonPath('data.company_profile_available', true);
+    $this->getJson('/api/v1/admin/company-profile')->assertJsonPath('data.available.en', true);
+
+    // Hidden by the admin: gone from the website even though the file exists.
+    $this->putJson('/api/v1/admin/company-profile', ['status' => 'draft'])->assertOk();
+    $this->getJson('/api/v1/company-profile/download?locale=en')->assertNotFound();
+    $this->getJson('/api/v1/site?locale=en')->assertJsonPath('data.company_profile_available', false);
 });
 
 it('serves only the published profile publicly', function () {
     actingAsRole();
     $this->postJson('/api/v1/admin/company-profile/upload', ['file' => pdfUpload(), 'locale' => 'en'])->assertCreated();
 
-    // Draft: not downloadable.
+    // The active source is still "generated", which has no PDF: not downloadable.
     $this->getJson('/api/v1/company-profile/download?locale=en')->assertNotFound();
 
     $this->putJson('/api/v1/admin/company-profile', ['status' => 'published', 'active_source' => 'uploaded'])->assertOk();
@@ -70,9 +86,51 @@ it('switches between uploaded and generated sources', function () {
     $this->postJson('/api/v1/admin/company-profile/upload', ['file' => pdfUpload(), 'locale' => 'en'])->assertCreated();
     $this->putJson('/api/v1/admin/company-profile', ['status' => 'published', 'active_source' => 'uploaded'])->assertOk();
 
-    // No generated version exists yet → nothing to serve from that source.
+    Queue::fake();
+
+    // No generated version exists yet: nothing to serve, and both languages are generated automatically.
     $this->putJson('/api/v1/admin/company-profile', ['active_source' => 'generated'])->assertOk();
     $this->getJson('/api/v1/company-profile/download?locale=en')->assertNotFound();
+    Queue::assertPushed(GenerateCompanyProfilePdf::class, 2);
+});
+
+it('rebuilds the generated PDF automatically when website content changes', function () {
+    config(['company_profile.auto_regenerate' => true]);
+    Queue::fake();
+    actingAsRole();
+    CompanyProfile::current()->update(['active_source' => 'generated']);
+
+    portfolio();
+
+    Queue::assertPushed(RegenerateCompanyProfile::class);
+});
+
+it('does not rebuild when the uploaded PDF is the active source', function () {
+    config(['company_profile.auto_regenerate' => true]);
+    Queue::fake();
+    actingAsRole();
+    CompanyProfile::current()->update(['active_source' => 'uploaded']);
+
+    portfolio();
+
+    Queue::assertNotPushed(RegenerateCompanyProfile::class);
+});
+
+it('regenerates both languages and prunes old automatic versions', function () {
+    Pdf::fake();
+    config(['company_profile.keep_generated_versions' => 2]);
+    CompanyProfile::current()->update(['active_source' => 'generated']);
+
+    foreach (range(1, 3) as $_) {
+        (new RegenerateCompanyProfile)->handle(app(ProfilePdfService::class));
+    }
+
+    foreach (['bn', 'en'] as $locale) {
+        $versions = CompanyProfileVersion::query()->where('source', 'generated')->where('locale', $locale)->get();
+        expect($versions)->toHaveCount(2)
+            ->and($versions->where('is_current', true))->toHaveCount(1)
+            ->and($versions->max('version_no'))->toBe(3);
+    }
 });
 
 it('does not expose private profile files through public storage URLs', function () {

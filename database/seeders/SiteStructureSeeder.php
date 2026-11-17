@@ -96,7 +96,7 @@ class SiteStructureSeeder extends Seeder
 
         CompanyProfile::query()->firstOrCreate([], [
             'active_source' => ProfileSource::Generated,
-            'status' => PublishStatus::Draft,
+            'status' => PublishStatus::Published,
             'title' => ['bn' => 'কোম্পানি প্রোফাইল', 'en' => 'Company Profile'],
             'description' => ['bn' => null, 'en' => null],
         ]);

@@ -125,6 +125,18 @@ cd /var/www/kaniz-ripa/current
 php artisan db:seed --force          # roles, permissions, countries, verified poster data (drafts), Super Admin
 ```
 
+To publish the five portfolio items from the official posters (both languages, marked reviewed by the Super Admin; companies stay unverified, so none is shown as a partner):
+
+```bash
+php artisan db:seed --class=PublishPosterPortfoliosSeeder --force
+```
+
+To publish the About page, team (contact persons), services and the four confirmed partners as well (this also runs the portfolio step above):
+
+```bash
+php artisan db:seed --class=CompanyContentSeeder --force
+```
+
 Seeding is idempotent and never publishes anything: poster companies stay unverified and portfolio items stay drafts.
 
 **Rollback:** `ln -sfn /var/www/kaniz-ripa/releases/<previous> /var/www/kaniz-ripa/current && sudo systemctl reload php8.5-fpm && php artisan queue:restart`. Migrations are additive; roll back the database only from a backup.

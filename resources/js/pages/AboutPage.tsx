@@ -7,6 +7,8 @@ import type { Page } from '@/lib/types';
 import { ResponsiveImage } from '@/components/ui/ResponsiveImage';
 import { PageHeader, Section, SectionHeading } from '@/components/ui/Section';
 import { EmptyState, FallbackNotice, Skeleton } from '@/components/ui/States';
+import { TeamGrid } from '@/components/team/TeamCard';
+import { useTeam } from '@/hooks/queries';
 
 const KEYS = ['about', 'history', 'mission', 'vision', 'values', 'management', 'credentials'] as const;
 
@@ -20,11 +22,12 @@ export default function AboutPage() {
         })),
     });
     const pages = Object.fromEntries(KEYS.map((k, i) => [k, results[i].data ?? null])) as Record<(typeof KEYS)[number], Page | null>;
+    const { team } = useTeam();
     const loading = results.some((r) => r.isLoading);
     const about = pages.about;
     useDocumentMeta(t.pages.aboutTitle, about?.summary);
 
-    const nothing = !loading && KEYS.every((k) => !pages[k]);
+    const nothing = !loading && KEYS.every((k) => !pages[k]) && !team.length;
 
     return (
         <>
@@ -70,19 +73,10 @@ export default function AboutPage() {
                 </Section>
             )}
 
-            {pages.management && (
+            {team.length > 0 && (
                 <Section tone="slate">
-                    <SectionHeading eyebrow={t.pages.aboutTitle} title={pages.management.title ?? ''} lead={pages.management.summary} />
-                    {pages.management.sections && pages.management.sections.length > 0 ? (
-                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                            {pages.management.sections.map((s) => (
-                                <article key={s.key} className="overflow-hidden rounded-card bg-white ring-1 ring-slate-200">
-                                    {s.media && <ResponsiveImage media={s.media} sizes="(min-width:1024px) 25vw, 50vw" className="aspect-square w-full" />}
-                                    <div className="p-5"><h3 className="font-semibold">{s.title}</h3>{s.body && <div className="mt-1 text-sm text-slate-600" dangerouslySetInnerHTML={{ __html: s.body }} />}</div>
-                                </article>
-                            ))}
-                        </div>
-                    ) : <div className="prose-content max-w-3xl" dangerouslySetInnerHTML={{ __html: pages.management.body ?? '' }} />}
+                    <SectionHeading eyebrow={t.pages.aboutTitle} title={pages.management?.title ?? t.home.teamTitle} lead={pages.management?.summary ?? t.home.teamLead} />
+                    <TeamGrid team={team} />
                 </Section>
             )}
 
@@ -95,3 +89,4 @@ export default function AboutPage() {
         </>
     );
 }
+

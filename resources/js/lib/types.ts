@@ -149,6 +149,8 @@ export interface SitePayload {
     logo_url: string | null;
     settings: SiteSettings;
     menus: Record<string, MenuItem[]>;
+    /** False when no company profile PDF can be downloaded: every profile link is hidden. */
+    company_profile_available?: boolean;
 }
 
 export interface HomePayload {
@@ -160,7 +162,21 @@ export interface HomePayload {
     partners: Partner[];
     portfolios: Portfolio[];
     success_stories: SuccessStory[];
+    team: TeamMember[];
+    stats: { countries: number; partners: number; projects: number; services: number };
     company_profile_available: boolean;
+}
+
+export interface TeamMember {
+    id: number;
+    locale: Locale;
+    name: string | null;
+    role: string | null;
+    bio: string | null;
+    phone: string | null;
+    whatsapp: boolean;
+    email: string | null;
+    photo: Media | null;
 }
 
 export interface CompanyProfileInfo {

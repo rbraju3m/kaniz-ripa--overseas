@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company;
+use App\Models\CompanyProfile;
 use App\Models\Portfolio;
 use App\Models\Service;
 use App\Models\SuccessStory;
@@ -32,7 +33,11 @@ class SitemapController extends Controller
                 }
             };
 
+            $profileAvailable = CompanyProfile::availableForVisitors();
             foreach (array_keys(SeoService::SECTIONS) as $section) {
+                if ($section === 'company-profile' && ! $profileAvailable) {
+                    continue;
+                }
                 $add($section);
             }
 

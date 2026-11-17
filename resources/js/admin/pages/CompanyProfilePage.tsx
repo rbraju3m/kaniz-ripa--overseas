@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, Download, Eye, FileUp, RefreshCw, Sparkles, Trash2 } from 'lucide-react';
+import { Download, Eye, EyeOff, FileUp, Globe, RefreshCw, Sparkles, Trash2 } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useToast } from '../components/toast';
 import { Badge, Btn, Card, ConfirmDialog, Field, Input, Modal, PageTitle, Select, Spinner, Table, Textarea } from '../components/ui';
@@ -9,7 +9,7 @@ import { adminApi, errorMessage, fieldErrors } from '../lib/http';
 import type { Locale } from '../lib/types';
 
 interface Version { id: number; source: 'uploaded' | 'generated'; locale: Locale; original_name: string | null; size: number; version_no: number; is_current: boolean; notes: string | null; created_by: string | null; created_at: string }
-interface Profile { id: number; active_source: 'uploaded' | 'generated'; status: 'draft' | 'published' | 'archived'; title: Partial<Record<Locale, string>> | null; description: Partial<Record<Locale, string>> | null; versions: Version[] }
+interface Profile { id: number; active_source: 'uploaded' | 'generated'; status: 'draft' | 'published' | 'archived'; available: Record<Locale, boolean>; auto_regenerate: boolean; title: Partial<Record<Locale, string>> | null; description: Partial<Record<Locale, string>> | null; versions: Version[] }
 
 export default function CompanyProfilePage() {
     const can = useCan();
@@ -29,11 +29,21 @@ export default function CompanyProfilePage() {
         // Poll while a queued generation is running.
         refetchInterval: generating ? 3000 : false,
     });
+    const startPolling = () => { setGenerating(true); setTimeout(() => setGenerating(false), 60_000); };
     const refresh = (p?: Profile) => (p ? qc.setQueryData(['admin', 'company-profile'], p) : qc.invalidateQueries({ queryKey: ['admin', 'company-profile'] }));
 
     const update = useMutation({
         mutationFn: (body: Partial<Profile>) => adminApi.put<{ data: Profile }>('/company-profile', body).then((r) => r.data),
-        onSuccess: (p) => { refresh(p); toast('success', 'Company profile updated.'); },
+        onSuccess: (p, body) => {
+            refresh(p);
+            // Switching to "generate automatically" queues any missing PDFs: watch for them.
+            if (body.active_source === 'generated' && (['bn', 'en'] as const).some((l) => !p.versions.some((v) => v.source === 'generated' && v.locale === l && v.is_current))) {
+                startPolling();
+                toast('success', 'Generating the BN + EN PDFs now. They appear below in a few seconds.');
+            } else {
+                toast('success', 'Company profile updated.');
+            }
+        },
         onError: (e) => toast('error', errorMessage(e)),
     });
     const upload = useMutation({
@@ -47,9 +57,8 @@ export default function CompanyProfilePage() {
     const generate = useMutation({
         mutationFn: (locales: Locale[]) => adminApi.post('/company-profile/generate', { locales }),
         onSuccess: () => {
-            setGenerating(true);
+            startPolling();
             toast('success', 'Generation started. New versions appear below in a few seconds.');
-            setTimeout(() => setGenerating(false), 60_000);
         },
         onError: (e) => toast('error', errorMessage(e)),
     });
@@ -66,38 +75,44 @@ export default function CompanyProfilePage() {
 
     if (isLoading || !profile) return <div className="grid place-items-center py-24"><Spinner /></div>;
     const current = (source: Version['source'], l: Locale) => profile.versions.find((v) => v.source === source && v.locale === l && v.is_current);
-    const live = profile.status === 'published';
-    const hasActive = !!(current(profile.active_source, 'bn') || current(profile.active_source, 'en'));
+    const shown = profile.status === 'published';
+    const downloadable = profile.available.bn || profile.available.en;
+    const auto = profile.active_source === 'generated';
 
     return (
         <>
-            <PageTitle title="Company profile PDF" description="Publish either an uploaded official PDF or one generated from published website content." />
+            <PageTitle title="Company profile PDF" description="Choose where the downloadable PDF comes from. The website shows the download button only when a PDF exists." />
 
             <div className="grid gap-6 xl:grid-cols-3">
-                <Card title="Publishing" className="xl:col-span-1">
+                <Card title="On the website" className="xl:col-span-1">
                     <div className="space-y-4">
-                        <div className="flex items-center gap-2 text-sm">Status: <Badge tone={live ? 'green' : 'amber'}>{profile.status}</Badge></div>
-                        <Field label="Source shown to visitors">
+                        <div className={`flex items-start gap-3 rounded-lg p-3 text-sm ${downloadable ? 'bg-brand-green-50 text-brand-green-800' : 'bg-amber-50 text-amber-800'}`}>
+                            <Globe className="mt-0.5 size-4 shrink-0" />
+                            <span>{downloadable
+                                ? <>Visitors see a <strong>Download</strong> button.</>
+                                : shown ? <>No PDF yet, so the website shows <strong>no</strong> download button.</> : <>Hidden: the website shows <strong>no</strong> download button.</>}</span>
+                        </div>
+                        <Field label="Profile PDF comes from">
                             <Select value={profile.active_source} disabled={!can('company_profile.update')} onChange={(e) => update.mutate({ active_source: e.target.value as Profile['active_source'] })}>
-                                <option value="uploaded">Uploaded official PDF</option>
-                                <option value="generated">Generated from website content</option>
+                                <option value="generated">Generate automatically from website content</option>
+                                <option value="uploaded">Upload my own PDF</option>
                             </Select>
                         </Field>
+                        <p className="text-xs text-slate-500">{auto
+                            ? (profile.auto_regenerate ? 'The PDF is rebuilt automatically about a minute after you change published website content.' : 'Automatic rebuilding is switched off on this server; use "Generate BN + EN PDFs".')
+                            : 'Visitors get the current uploaded PDF. Upload a new file to replace it.'}</p>
                         <ul className="space-y-1 text-sm">
                             {(['bn', 'en'] as const).map((l) => {
                                 const v = current(profile.active_source, l);
-                                return <li key={l} className="flex justify-between"><span>{l === 'bn' ? 'Bangla' : 'English'}</span>{v ? <span className="text-brand-green-700">v{v.version_no} ✓</span> : <span className="text-slate-400">none (falls back to the other language)</span>}</li>;
+                                return <li key={l} className="flex justify-between"><span>{l === 'bn' ? 'Bangla' : 'English'}</span>{v ? <span className="text-brand-green-700">v{v.version_no} ✓</span> : <span className="text-slate-400">{generating && auto ? 'generating…' : 'none (uses the other language)'}</span>}</li>;
                             })}
                         </ul>
                         {can('company_profile.publish') && (
-                            live
-                                ? <Btn variant="secondary" onClick={() => update.mutate({ status: 'draft' })} loading={update.isPending}>Unpublish</Btn>
-                                : <>
-                                    <Btn onClick={() => update.mutate({ status: 'published' })} loading={update.isPending} disabled={!hasActive}><CheckCircle2 className="size-4" /> Publish profile</Btn>
-                                    {!hasActive && <p className="text-xs text-slate-500">Upload or generate a PDF for the selected source first.</p>}
-                                  </>
+                            shown
+                                ? <Btn variant="secondary" onClick={() => update.mutate({ status: 'draft' })} loading={update.isPending}><EyeOff className="size-4" /> Hide from website</Btn>
+                                : <Btn onClick={() => update.mutate({ status: 'published' })} loading={update.isPending}><Eye className="size-4" /> Show on website</Btn>
                         )}
-                        {live && <a href="/bn/company-profile" target="_blank" rel="noopener" className="block text-sm text-navy-700 underline">Open public page</a>}
+                        {downloadable && <a href="/bn/company-profile" target="_blank" rel="noopener" className="block text-sm text-navy-700 underline">Open public page</a>}
                     </div>
                 </Card>
 
@@ -108,19 +123,19 @@ export default function CompanyProfilePage() {
                             <Field label="Version notes (optional)"><Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g. 2026 edition from designer" /></Field>
                             <input ref={fileRef} type="file" accept="application/pdf" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) upload.mutate(f); }} />
                             <Btn onClick={() => fileRef.current?.click()} loading={upload.isPending}><FileUp className="size-4" /> Choose PDF (max 20 MB)</Btn>
-                            <p className="text-xs text-slate-500">The previous version is kept in history. Files are stored privately and only the published version is downloadable.</p>
+                            <p className="text-xs text-slate-500">The previous version is kept in history. Files are stored privately; visitors only get the current version, and only while &quot;Upload my own PDF&quot; is selected.</p>
                         </div>
                     ) : <p className="text-sm text-slate-500">You don't have permission to upload.</p>}
                 </Card>
 
-                <Card title="Generate from website content">
+                <Card title="Generated PDF">
                     <div className="space-y-4 text-sm">
                         <p className="text-slate-600">Builds an A4 PDF (cover, about, mission &amp; vision, services, countries, partners, portfolio, success stories, credentials, contact) from <strong>published and reviewed</strong> content only. Empty sections are left out.</p>
                         <div className="flex flex-wrap gap-2">
                             <a href="/api/v1/admin/company-profile/preview?locale=bn" target="_blank" rel="noopener" className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm ring-1 ring-slate-300 hover:bg-slate-50"><Eye className="size-4" /> Preview BN</a>
                             <a href="/api/v1/admin/company-profile/preview?locale=en" target="_blank" rel="noopener" className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm ring-1 ring-slate-300 hover:bg-slate-50"><Eye className="size-4" /> Preview EN</a>
                         </div>
-                        {can('company_profile.create') && <Btn onClick={() => generate.mutate(['bn', 'en'])} loading={generate.isPending}><Sparkles className="size-4" /> Generate BN + EN PDFs</Btn>}
+                        {can('company_profile.create') && <Btn variant={auto ? 'secondary' : 'primary'} onClick={() => generate.mutate(['bn', 'en'])} loading={generate.isPending}><Sparkles className="size-4" /> {auto ? 'Rebuild now' : 'Generate BN + EN PDFs'}</Btn>}
                         {generating && <p className="flex items-center gap-2 text-xs text-slate-500"><RefreshCw className="size-3 animate-spin" /> Waiting for the queue worker…</p>}
                     </div>
                 </Card>

@@ -41,6 +41,8 @@ export interface ResourceConfig {
     description?: ReactNode;
     publishable?: boolean;
     translatable?: boolean;
+    /** New translations start as "reviewed" (simple data such as names). */
+    reviewedByDefault?: boolean;
     searchable?: boolean;
     fields: FieldDef[];
     translationFields?: FieldDef[];

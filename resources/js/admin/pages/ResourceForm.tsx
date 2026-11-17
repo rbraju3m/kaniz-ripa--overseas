@@ -6,7 +6,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { cn } from '@/lib/utils';
 import { FieldInput } from '../components/FieldInput';
 import { useToast } from '../components/toast';
-import { Btn, Card, ConfirmDialog, Field, Select, Spinner } from '../components/ui';
+import { Btn, Card, ConfirmDialog, Spinner } from '../components/ui';
 import { useCan } from '../lib/auth';
 import { recordTitle } from '../lib/format';
 import { adminApi, errorMessage, fieldErrors } from '../lib/http';
@@ -46,8 +46,9 @@ export default function ResourceForm({ cfg }: { cfg: ResourceConfig }) {
             qc.invalidateQueries({ queryKey: ['admin', cfg.key] });
             qc.invalidateQueries({ queryKey: ['admin', 'reference'] });
             toast('success', `${cfg.singular} saved.`);
-            if (!isEditing) navigate(`/admin/${cfg.key}/${saved.id}`, { replace: true });
-            else qc.setQueryData(['admin', cfg.key, id], saved);
+            qc.setQueryData(['admin', cfg.key, String(saved.id)], saved);
+            // Back to the list after saving.
+            navigate(`/admin/${cfg.key}`);
         },
         onError: (e) => {
             const errs = fieldErrors(e);
@@ -133,13 +134,28 @@ export default function ResourceForm({ cfg }: { cfg: ResourceConfig }) {
                     <div className="space-y-6">
                         {cfg.publishable && (
                             <Card title="Publishing">
-                                <Field label="Status" error={errors.status?.message as string | undefined} help={!canPublish ? 'You can save drafts. Publishing needs the publish permission.' : 'Published items appear on the website once a reviewed translation exists.'}>
-                                    <Select {...form.register('status')}>
-                                        <option value="draft" disabled={!canPublish && currentStatus === 'published'}>Draft</option>
-                                        <option value="published" disabled={!canPublish && currentStatus !== 'published'}>Published</option>
-                                        <option value="archived" disabled={!canPublish && currentStatus === 'published'}>Archived</option>
-                                    </Select>
-                                </Field>
+                                <fieldset>
+                                    <legend className="sr-only">Status</legend>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {([
+                                            { value: 'published', label: 'Published', hint: 'Visible on the website', tone: 'peer-checked:bg-brand-green-50 peer-checked:ring-brand-green-600 peer-checked:text-brand-green-800' },
+                                            { value: 'draft', label: 'Unpublished', hint: 'Hidden from visitors', tone: 'peer-checked:bg-amber-50 peer-checked:ring-amber-500 peer-checked:text-amber-800' },
+                                        ] as const).map((o) => {
+                                            const locked = !canPublish && (o.value === 'published' ? currentStatus !== 'published' : currentStatus === 'published');
+                                            return (
+                                                <label key={o.value} className={locked ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}>
+                                                    <input type="radio" value={o.value} disabled={locked} className="peer sr-only" {...form.register('status')} />
+                                                    <span className={`block rounded-lg px-3 py-2.5 ring-1 ring-slate-200 transition peer-focus-visible:ring-2 peer-focus-visible:ring-navy-500 ${o.tone}`}>
+                                                        <span className="block text-sm font-semibold">{o.label}</span>
+                                                        <span className="block text-xs opacity-75">{o.hint}</span>
+                                                    </span>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
+                                    {errors.status?.message && <p className="mt-1 text-xs text-red-600">{String(errors.status.message)}</p>}
+                                    <p className="mt-2 text-xs text-slate-500">{!canPublish ? 'Publishing needs the publish permission.' : 'Shown on the website once the language is marked reviewed.'}</p>
+                                </fieldset>
                             </Card>
                         )}
                         {sideFields.length > 0 && (

@@ -30,10 +30,10 @@ Nothing below will be invented. Until the client supplies an item, the site uses
 | 9 | Approved English address | Pending |
 | 10 | Founding year and company history | Missing |
 | 11 | Mission, vision and core values text | Missing |
-| 12 | Management names, photos and bios approved for publication | Missing |
-| 13 | Confirmed list of services | Missing |
+| 12 | Team photos (names and roles from the posters are published on the About page) | Missing |
+| 13 | Service descriptions: 5 published with short factual text; detailed copy still needed | Partial |
 | 14 | Confirmed list of countries served | Pending |
-| 15 | Partner confirmation (with logo use permission): Vital Healthcare Sdn Bhd, Dai Suwon Packaging Sdn Bhd, Jubaid Al Khair, Jusur Almawared Human Resources | Pending |
+| 15 | Partner logos and logo use permission (partnerships confirmed by the Super Admin; Vital Healthcare, Dai Suwon Packaging, Jubaid Al Khair, Jusur Almawared HR published) | Missing |
 | 16 | Vietnam employer name(s) | Missing |
 | 17 | Real success stories with written consent, photos and videos | Missing |
 | 18 | Office, event and activity photographs | Missing |

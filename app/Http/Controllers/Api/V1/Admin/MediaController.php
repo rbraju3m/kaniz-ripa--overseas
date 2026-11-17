@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Admin\AdminResource;
 use App\Models\Media;
 use App\Services\MediaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class MediaController extends Controller
 {
@@ -21,9 +21,11 @@ class MediaController extends Controller
             ->when($request->query('folder'), fn ($q, $f) => $q->where('folder', (string) $f))
             ->when($request->query('search'), fn ($q, $s) => $q->where('original_name', 'like', '%'.str_replace(['%', '_'], ['\%', '\_'], (string) $s).'%'))
             ->latest('id')
-            ->paginate(min(max($request->integer('per_page', 30), 1), 100));
+            ->paginate(min(max($request->integer('per_page', 30), 1), 100))
+            // Same shape as store/update: the library grid needs the image URLs.
+            ->through(fn (Media $media) => $this->present($media));
 
-        return AdminResource::collection($items)->additional([]);
+        return JsonResource::collection($items);
     }
 
     public function store(Request $request): JsonResponse

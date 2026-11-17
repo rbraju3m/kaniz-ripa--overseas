@@ -12,6 +12,7 @@ use App\Models\Page;
 use App\Models\Portfolio;
 use App\Models\Service;
 use App\Models\SuccessStory;
+use App\Models\TeamMember;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -143,6 +144,9 @@ class ProfilePdfService
 
             $tax = ['country.translations', 'industry.translations'];
 
+            $team = TeamMember::query()->published()->hasReviewedTranslation()->with('translations')->orderBy('sort')->orderBy('id')->get()
+                ->map(fn ($m) => ['name' => $m->publicTranslation()->name, 'role' => $m->publicTranslation()->role, 'phone' => $m->show_phone ? $m->phone : null]);
+
             $services = Service::query()->published()->hasReviewedTranslation()->with('translations')->orderBy('sort')->get()
                 ->map(fn ($s) => ['title' => $s->publicTranslation()->title, 'summary' => $s->publicTranslation()->summary, 'icon' => $s->icon]);
 
@@ -198,6 +202,7 @@ class ProfilePdfService
                 'logo' => $logoId ? $this->dataUri(Media::query()->find($logoId), 'sm') : null,
                 'fonts' => $this->fontFaces(),
                 'pages' => $pages,
+                'team' => $team,
                 'services' => $services,
                 'countries' => $countries,
                 'partners' => $partners,

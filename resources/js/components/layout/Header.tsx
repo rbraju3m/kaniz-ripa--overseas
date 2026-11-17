@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Menu, Phone, X } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router';
 import { useSite } from '@/hooks/queries';
@@ -13,7 +13,9 @@ const FALLBACK: string[] = ['home', 'about', 'services', 'portfolio', 'partners'
 export function useMenuLinks(location: 'header' | 'footer') {
     const { site } = useSite();
     const { t, path } = useI18n();
-    const items: MenuItem[] = site?.menus?.[location] ?? FALLBACK.map((r, i) => ({ id: i, label: t.nav[r as keyof typeof t.nav], route: r, url: null, new_tab: false, children: [] }));
+    const all: MenuItem[] = site?.menus?.[location] ?? FALLBACK.map((r, i) => ({ id: i, label: t.nav[r as keyof typeof t.nav], route: r, url: null, new_tab: false, children: [] }));
+    // No downloadable profile PDF: hide the Company Profile link instead of leading to an empty page.
+    const items = site?.company_profile_available ? all : all.filter((item) => item.route !== 'company-profile');
 
     return items.map((item) => ({
         key: item.id,
@@ -36,8 +38,14 @@ export function Header() {
     const open = openOn === pathname;
     const phone = site?.settings.contact?.phone;
 
+    const progressRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 24);
+        const onScroll = () => {
+            setScrolled(window.scrollY > 24);
+            // Reading progress: updated directly on the element, no re-render per scroll event.
+            const max = document.documentElement.scrollHeight - window.innerHeight;
+            if (progressRef.current) progressRef.current.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
+        };
         onScroll();
         window.addEventListener('scroll', onScroll, { passive: true });
         return () => window.removeEventListener('scroll', onScroll);
@@ -53,6 +61,9 @@ export function Header() {
 
     return (
         <header className={cn('fixed inset-x-0 top-0 z-50 transition-all duration-300', solid ? 'bg-white/95 shadow-soft backdrop-blur' : 'bg-transparent')}>
+            <div aria-hidden className={cn('absolute inset-x-0 bottom-0 h-0.5 transition-opacity', solid ? 'opacity-100' : 'opacity-0')}>
+                <div ref={progressRef} className="h-full origin-left scale-x-0 bg-gradient-to-r from-brand-green-600 via-gold-500 to-royal-600" />
+            </div>
             <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:rounded-md focus:bg-white focus:px-4 focus:py-2">{t.nav.skip}</a>
             <div className="container-page flex h-18 items-center justify-between gap-4 py-3">
                 <Logo dark={!solid} />

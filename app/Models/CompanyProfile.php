@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\Locale;
 use App\Enums\ProfileSource;
 use App\Enums\PublishStatus;
+use App\Jobs\RegenerateCompanyProfile;
 use App\Models\Concerns\HasPublishStatus;
 use App\Models\Concerns\LogsAdminActivity;
 use Illuminate\Database\Eloquent\Model;
@@ -30,8 +32,46 @@ class CompanyProfile extends Model
     {
         return static::query()->firstOrCreate([], [
             'active_source' => ProfileSource::Generated,
-            'status' => PublishStatus::Draft,
+            // Visible by default: visitors can download as soon as a PDF exists for the active source.
+            'status' => PublishStatus::Published,
         ]);
+    }
+
+    /** True when visitors can download a PDF: shown on the website and a current file exists. */
+    public function isAvailable(?string $locale = null): bool
+    {
+        return $this->isPublished() && $this->activeVersion($locale ?? app()->getLocale()) !== null;
+    }
+
+    public static function availableForVisitors(): bool
+    {
+        return (bool) static::query()->first()?->isAvailable();
+    }
+
+    /** Locales that have no current generated PDF yet. */
+    public function missingGeneratedLocales(): array
+    {
+        $have = $this->versions()->getQuery()
+            ->where('source', ProfileSource::Generated->value)->where('is_current', true)
+            ->pluck('locale')->all();
+
+        return array_values(array_diff(Locale::values(), $have));
+    }
+
+    /** Queue a debounced rebuild of the generated PDFs (no-op unless the source is "generated"). */
+    public static function scheduleRegeneration(): void
+    {
+        if (! config('company_profile.auto_regenerate')) {
+            return;
+        }
+        $profile = static::query()->first();
+        if (! $profile || $profile->active_source !== ProfileSource::Generated) {
+            return;
+        }
+
+        RegenerateCompanyProfile::dispatch()
+            ->delay(now()->addSeconds((int) config('company_profile.regenerate_delay', 60)))
+            ->afterCommit();
     }
 
     public function versions(): HasMany

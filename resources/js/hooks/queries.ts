@@ -2,7 +2,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { getJson } from '@/lib/api';
 import { useI18n } from '@/lib/i18n';
 import type {
-    CompanyProfileInfo, Country, GalleryItem, HomePayload, Page, Paginated, Partner, Portfolio, Service, SitePayload, SuccessStory,
+    CompanyProfileInfo, Country, GalleryItem, HomePayload, Page, Paginated, Partner, Portfolio, Service, SitePayload, SuccessStory, TeamMember,
 } from '@/lib/types';
 
 /** Every public query is keyed and fetched per locale. */
@@ -21,6 +21,10 @@ const unwrap = <T,>(q: { data?: { data: T } }) => q.data?.data;
 export const useSite = () => {
     const q = useLocaleQuery<{ data: SitePayload }>(['site'], '/site');
     return { ...q, site: unwrap(q) };
+};
+export const useTeam = () => {
+    const q = useLocaleQuery<{ data: TeamMember[] }>(['team'], '/team');
+    return { ...q, team: unwrap(q) ?? [] };
 };
 export const useHome = () => {
     const q = useLocaleQuery<{ data: HomePayload }>(['home'], '/home');

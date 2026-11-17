@@ -31,6 +31,9 @@ class CompanyProfileController extends Controller
             ...$profile->only(['id', 'title', 'description']),
             'active_source' => $profile->active_source->value,
             'status' => $profile->status->value,
+            // What visitors get right now, per language (null = no download button on the website).
+            'available' => collect(Locale::values())->mapWithKeys(fn ($l) => [$l => $profile->isAvailable($l)]),
+            'auto_regenerate' => (bool) config('company_profile.auto_regenerate'),
             'versions' => $profile->versions->map(fn (CompanyProfileVersion $v) => [
                 ...$v->only(['id', 'locale', 'original_name', 'size', 'version_no', 'is_current', 'notes']),
                 'source' => $v->source->value,
@@ -60,13 +63,14 @@ class CompanyProfileController extends Controller
             Gate::authorize('company_profile.publish');
         }
 
-        if (($data['status'] ?? null) === PublishStatus::Published->value) {
-            $source = $data['active_source'] ?? $profile->active_source->value;
-            $hasCurrent = $profile->versions()->getQuery()->where('source', $source)->where('is_current', true)->exists();
-            abort_unless($hasCurrent, 422, 'Upload or generate a PDF for the selected source before publishing.');
-        }
-
         $profile->update($data);
+
+        // Choosing "generate automatically" builds any missing PDFs straight away.
+        if ($profile->active_source === ProfileSource::Generated) {
+            foreach ($profile->missingGeneratedLocales() as $locale) {
+                GenerateCompanyProfilePdf::dispatch($locale, $request->user()->id, 'Created automatically');
+            }
+        }
 
         return $this->show();
     }

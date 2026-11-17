@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models;
+use App\Models\CompanyProfile;
 use App\Support\Permissions;
 use App\Support\SuperAdmin;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -15,6 +17,20 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /** Models whose content appears in the generated company profile PDF. */
+    private const PROFILE_CONTENT_MODELS = [
+        Models\Page::class, Models\PageTranslation::class,
+        Models\PageSection::class, Models\PageSectionTranslation::class,
+        Models\Service::class, Models\ServiceTranslation::class,
+        Models\Company::class, Models\CompanyTranslation::class,
+        Models\Portfolio::class, Models\PortfolioTranslation::class,
+        Models\SuccessStory::class, Models\SuccessStoryTranslation::class,
+        Models\Country::class, Models\CountryTranslation::class,
+        Models\Industry::class, Models\IndustryTranslation::class,
+        Models\TeamMember::class, Models\TeamMemberTranslation::class,
+        Models\Setting::class,
+    ];
+
     public function register(): void
     {
         //
@@ -38,6 +54,12 @@ class AppServiceProvider extends ServiceProvider
                     SuperAdmin::ensure();
                 }
             });
+        }
+
+        // Keep the generated company profile PDF in sync with the website content it is built from.
+        foreach (self::PROFILE_CONTENT_MODELS as $model) {
+            $model::saved(fn () => CompanyProfile::scheduleRegeneration());
+            $model::deleted(fn () => CompanyProfile::scheduleRegeneration());
         }
 
         RateLimiter::for('login', fn (Request $request) => [

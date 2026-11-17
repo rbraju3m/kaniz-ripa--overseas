@@ -24,6 +24,15 @@ it('uploads an image, re-encodes it to webp and creates variants', function () {
         ->and(array_keys($media->variants))->toEqualCanonicalizing(['sm', 'md', 'lg']);
 });
 
+it('lists media with image urls for the library grid', function () {
+    $this->postJson('/api/v1/admin/media', ['file' => UploadedFile::fake()->image('team.jpg', 2000, 1200), 'folder' => 'pages'])->assertCreated();
+
+    $item = $this->getJson('/api/v1/admin/media')->assertOk()->assertJsonPath('meta.total', 1)->json('data.0');
+
+    expect($item['url'])->toContain('/storage/media/pages/')
+        ->and($item['variant_urls'])->toHaveKeys(['sm', 'md']);
+});
+
 it('rejects svg, html and disguised files', function () {
     $svg = UploadedFile::fake()->createWithContent('logo.svg', '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
     $html = UploadedFile::fake()->createWithContent('x.jpg', '<html><script>alert(1)</script></html>');

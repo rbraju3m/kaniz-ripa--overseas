@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 /**
  * Shared admin CRUD. Route middleware enforces "{module}.{action}" permissions;
@@ -104,6 +105,22 @@ abstract class CrudController extends Controller
         $validated = app($this->requestClass())->validated();
 
         return AdminResource::make($this->persist($model, $validated));
+    }
+
+    /** Quick Published / Unpublished switch from the list (publish permission required). */
+    public function status(Request $request, int $id): AdminResource
+    {
+        $model = $this->query()->findOrFail($id);
+        abort_unless(array_key_exists('status', $model->getCasts()), 404);
+
+        $data = $request->validate([
+            'status' => ['required', Rule::in([PublishStatus::Published->value, PublishStatus::Draft->value])],
+        ]);
+
+        $this->authorizePublishChange($model, $data['status']);
+        $model->update(['status' => $data['status']]);
+
+        return AdminResource::make($model->refresh()->load($this->listRelations()));
     }
 
     public function destroy(int $id): JsonResponse

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Public;
 
 use App\Http\Resources\Public\CountryResource;
 use App\Http\Resources\Public\IndustryResource;
+use App\Models\CompanyProfile;
 use App\Models\Country;
 use App\Models\Industry;
 use App\Models\Media;
@@ -30,6 +31,8 @@ class SiteController extends PublicController
             'logo_url' => ($id = $settings->get('logo_media_id')) ? Media::query()->find($id)?->url('sm') : null,
             'settings' => $settings->publicPayload(),
             'menus' => $menus,
+            // Drives every profile link/button on the website: hidden when no PDF can be downloaded.
+            'company_profile_available' => CompanyProfile::availableForVisitors(),
         ];
     }
 

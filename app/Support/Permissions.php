@@ -14,6 +14,7 @@ final class Permissions
         'dashboard' => ['view'],
         'pages' => ['view', 'create', 'update', 'delete', 'publish'],
         'services' => ['view', 'create', 'update', 'delete', 'publish'],
+        'team' => ['view', 'create', 'update', 'delete', 'publish'],
         'portfolios' => ['view', 'create', 'update', 'delete', 'publish'],
         'companies' => ['view', 'create', 'update', 'delete', 'publish'],
         'success_stories' => ['view', 'create', 'update', 'delete', 'publish'],
@@ -48,7 +49,7 @@ final class Permissions
     {
         $all = self::all();
         $system = ['users.', 'roles.'];
-        $content = ['pages', 'services', 'portfolios', 'companies', 'success_stories', 'gallery', 'company_profile', 'countries', 'menus', 'seo', 'media'];
+        $content = ['pages', 'team', 'services', 'portfolios', 'companies', 'success_stories', 'gallery', 'company_profile', 'countries', 'menus', 'seo', 'media'];
 
         $editor = ['dashboard.view', 'contact_messages.view', 'contact_messages.update'];
         foreach ($content as $module) {

@@ -25,7 +25,7 @@ export function toValues(cfg: ResourceConfig, record?: AdminRecord): FieldValues
     if (cfg.translatable) {
         v.translations = Object.fromEntries(LOCALES.map((l) => {
             const row = record?.translations?.[l];
-            return [l, { ...Object.fromEntries((cfg.translationFields ?? []).map((f) => [f.name, (row?.[f.name] as string) ?? ''])), is_reviewed: !!row?.is_reviewed }];
+            return [l, { ...Object.fromEntries((cfg.translationFields ?? []).map((f) => [f.name, (row?.[f.name] as string) ?? ''])), is_reviewed: row ? !!row.is_reviewed : !!cfg.reviewedByDefault }];
         }));
     }
     return record && cfg.fromRecord ? cfg.fromRecord(v, record) : v;

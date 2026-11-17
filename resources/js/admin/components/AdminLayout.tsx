@@ -1,6 +1,6 @@
 import {
     Activity, Building2, FileText, Flag, Folder, Globe, Images, Inbox, LayoutDashboard, LogOut, Menu as MenuIcon, Navigation,
-    Newspaper, Search, Settings, Shield, Sparkles, Users, Wrench, X, type LucideIcon,
+    Newspaper, Search, Settings, Shield, Sparkles, UserRound, Users, Wrench, X, type LucideIcon,
 } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router';
@@ -12,6 +12,7 @@ const NAV: { group: string; items: NavItem[] }[] = [
     { group: '', items: [{ to: '/admin', label: 'Dashboard', icon: LayoutDashboard, perm: 'dashboard.view' }] },
     { group: 'Content', items: [
         { to: '/admin/pages', label: 'Website pages', icon: FileText, perm: 'pages.view' },
+        { to: '/admin/team-members', label: 'Team members', icon: UserRound, perm: 'team.view' },
         { to: '/admin/services', label: 'Services', icon: Wrench, perm: 'services.view' },
         { to: '/admin/portfolios', label: 'Portfolio', icon: Newspaper, perm: 'portfolios.view' },
         { to: '/admin/companies', label: 'Partner companies', icon: Building2, perm: 'companies.view' },

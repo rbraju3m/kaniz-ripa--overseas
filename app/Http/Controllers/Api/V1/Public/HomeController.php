@@ -8,6 +8,7 @@ use App\Http\Resources\Public\PartnerResource;
 use App\Http\Resources\Public\PortfolioResource;
 use App\Http\Resources\Public\ServiceResource;
 use App\Http\Resources\Public\SuccessStoryResource;
+use App\Http\Resources\Public\TeamMemberResource;
 use App\Models\Company;
 use App\Models\CompanyProfile;
 use App\Models\Country;
@@ -63,8 +64,15 @@ class HomeController extends PublicController
                     ->with([...self::taxonomy(), 'translations', 'photo', 'company'])
                     ->orderByDesc('is_featured')->orderBy('sort')->limit(6)->get()
             ),
-            'company_profile_available' => (bool) $profile?->isPublished()
-                && $profile->activeVersion(app()->getLocale()) !== null,
+            'team' => TeamMemberResource::collection(TeamController::members()),
+            // Real counts from published records (never typed-in marketing numbers).
+            'stats' => [
+                'countries' => Country::query()->served()->hasReviewedTranslation()->count(),
+                'partners' => Company::query()->partners()->count(),
+                'projects' => Portfolio::query()->published()->hasReviewedTranslation()->count(),
+                'services' => Service::query()->published()->hasReviewedTranslation()->count(),
+            ],
+            'company_profile_available' => (bool) $profile?->isAvailable(),
         ];
 
         // Resolve API resources into plain arrays.

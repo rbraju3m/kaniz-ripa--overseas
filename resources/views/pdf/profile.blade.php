@@ -105,6 +105,16 @@ h1,h2,h3{font-family:{!! $bn ? "'Hind Siliguri','Plus Jakarta Sans'" : "'Plus Ja
         @endif
     @endforeach
 
+    {{-- Team --}}
+    @if($team->isNotEmpty())
+        <div class="sec"><div class="sec-head"><span class="sec-num">{{ $num() }}</span><h2>{{ $locale === 'bn' ? 'আমাদের টিম' : 'Our Team' }}</h2></div>
+            <div class="grid2">
+                @foreach($team as $m)
+                    <div class="card"><h3>{{ $m['name'] }}</h3>@if($m['role'])<div class="meta">{{ $m['role'] }}</div>@endif @if($m['phone'])<div class="meta">{{ $m['phone'] }}</div>@endif</div>
+                @endforeach
+            </div></div>
+    @endif
+
     {{-- 4. Mission & vision (+ values) --}}
     @if($pages->has('mission') || $pages->has('vision') || $pages->has('values'))
         <div class="sec"><div class="sec-head"><span class="sec-num">{{ $num() }}</span><h2>{{ $t('লক্ষ্য ও ভিশন', 'Mission & Vision') }}</h2></div>
